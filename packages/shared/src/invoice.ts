@@ -21,6 +21,7 @@ export type Invoice = {
   clientId: string;
   clientName: string;
   clientNumber: string;
+  clientEmail: string;
   quoteId: string | null;
   quoteNumber: string | null;
   invoiceNumber: string | null;
@@ -43,6 +44,7 @@ export type Invoice = {
   amountPaidCents: number;
   creditedCents: number;
   amountDueCents: number;
+  pdfUrl: string;
   lines: InvoiceLine[];
   createdAt: string;
   updatedAt: string;

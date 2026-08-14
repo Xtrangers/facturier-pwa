@@ -35,6 +35,7 @@ export type Quote = {
   clientId: string;
   clientName: string;
   clientNumber: string;
+  clientEmail: string;
   quoteNumber: string;
   status: QuoteStatus;
   issueDate: string;
@@ -52,6 +53,7 @@ export type Quote = {
   totalHtCents: number;
   totalTaxCents: number;
   totalTtcCents: number;
+  pdfUrl: string;
   invoiceId: string | null;
   lines: QuoteLine[];
   createdAt: string;

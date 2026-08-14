@@ -15,7 +15,7 @@ MVP : une entreprise seedée, `companyId` fixe côté API jusqu’à l’auth.
 
 ## Entités en base (livrées)
 
-`Company`, `CompanySettings`, `Client`, `ClientContact`, `Product`, `ProductCategory`, `Quote`, `QuoteLine`, `Invoice`, `InvoiceLine`, `CreditNote`, `Payment`, `Reminder`, `AuditLog`
+`Company`, `CompanySettings`, `Client`, `ClientContact`, `Product`, `ProductCategory`, `Quote`, `QuoteLine`, `Invoice`, `InvoiceLine`, `CreditNote`, `Payment`, `Reminder`, `AuditLog`, `MailLog`
 
 ## Pas encore en base
 

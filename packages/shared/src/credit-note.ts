@@ -5,6 +5,7 @@ export type CreditNote = {
   companyId: string;
   clientId: string;
   clientName: string;
+  clientEmail: string;
   invoiceId: string;
   invoiceNumber: string | null;
   creditNumber: string | null;
@@ -17,6 +18,7 @@ export type CreditNote = {
   totalHtCents: number;
   totalTaxCents: number;
   totalTtcCents: number;
+  pdfUrl: string;
   createdAt: string;
   updatedAt: string;
 };

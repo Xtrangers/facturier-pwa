@@ -73,6 +73,7 @@ export class InvoicesService {
       clientId: invoice.clientId,
       clientName: invoice.client.name,
       clientNumber: invoice.client.clientNumber,
+      clientEmail: invoice.client.email,
       quoteId: invoice.quoteId,
       quoteNumber: invoice.quote?.quoteNumber ?? null,
       invoiceNumber: invoice.invoiceNumber,
@@ -95,6 +96,7 @@ export class InvoicesService {
       amountPaidCents: invoice.amountPaidCents,
       creditedCents: invoice.creditedCents,
       amountDueCents: invoice.amountDueCents,
+      pdfUrl: invoice.pdfUrl,
       lines: invoice.lines
         .slice()
         .sort((a, b) => a.position - b.position)

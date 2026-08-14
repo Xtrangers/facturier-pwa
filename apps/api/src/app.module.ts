@@ -11,6 +11,8 @@ import { ReportsModule } from "./reports/reports.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { DocumentsModule } from "./documents/documents.module";
 import { SettingsModule } from "./settings/settings.module";
+import { PdfModule } from "./pdf/pdf.module";
+import { MailModule } from "./mail/mail.module";
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { SettingsModule } from "./settings/settings.module";
     PaymentsModule,
     DocumentsModule,
     SettingsModule,
+    PdfModule,
+    MailModule,
   ],
 })
 export class AppModule {}

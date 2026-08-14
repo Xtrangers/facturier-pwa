@@ -36,6 +36,7 @@ model Company {
   payments          Payment[]
   reminders         Reminder[]
   auditLogs         AuditLog[]
+  mailLogs          MailLog[]
 }
 
 model CompanySettings {
@@ -170,12 +171,14 @@ model Quote {
   totalHtCents        Int         @default(0)
   totalTaxCents       Int         @default(0)
   totalTtcCents       Int         @default(0)
+  pdfUrl              String      @default("")
   deletedAt           DateTime?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   lines               QuoteLine[]
   invoices            Invoice[]
   reminders           Reminder[]
+  mailLogs            MailLog[]
 
   @@unique([companyId, quoteNumber])
   @@index([companyId, status])
@@ -230,6 +233,7 @@ model Invoice {
   amountPaidCents     Int           @default(0)
   creditedCents       Int           @default(0)
   amountDueCents      Int           @default(0)
+  pdfUrl              String        @default("")
   deletedAt           DateTime?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
@@ -237,6 +241,7 @@ model Invoice {
   payments            Payment[]
   creditNotes         CreditNote[]
   reminders           Reminder[]
+  mailLogs            MailLog[]
 
   @@unique([companyId, invoiceNumber])
   @@index([companyId, status])
@@ -295,9 +300,11 @@ model CreditNote {
   totalHtCents   Int
   totalTaxCents  Int
   totalTtcCents  Int
+  pdfUrl         String    @default("")
   deletedAt      DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  mailLogs       MailLog[]
 
   @@unique([companyId, creditNumber])
   @@index([companyId, invoiceId])
@@ -315,6 +322,7 @@ model Reminder {
   level     Int
   notes     String   @default("")
   createdAt DateTime @default(now())
+  mailLogs  MailLog[]
 
   @@index([companyId, createdAt])
 }
@@ -328,4 +336,32 @@ model AuditLog {
   action    String
   payload   String   @default("{}")
   createdAt DateTime @default(now())
+}
+
+model MailLog {
+  id           String      @id @default(cuid())
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  kind         String
+  quoteId      String?
+  quote        Quote?      @relation(fields: [quoteId], references: [id])
+  invoiceId    String?
+  invoice      Invoice?    @relation(fields: [invoiceId], references: [id])
+  creditNoteId String?
+  creditNote   CreditNote? @relation(fields: [creditNoteId], references: [id])
+  reminderId   String?
+  reminder     Reminder?   @relation(fields: [reminderId], references: [id])
+  toEmail      String
+  subject      String
+  body         String      @default("")
+  status       String
+  transport    String
+  error        String      @default("")
+  pdfFilename  String      @default("")
+  createdAt    DateTime    @default(now())
+
+  @@index([companyId, createdAt])
+  @@index([quoteId])
+  @@index([invoiceId])
+  @@index([creditNoteId])
 }

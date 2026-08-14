@@ -26,6 +26,9 @@ import type {
   Report,
   CompanyProfile,
   CompanyProfilePayload,
+  MailLog,
+  MailPayload,
+  ReminderMailPayload,
 } from "@facturier/shared";
 
 const base = "/api/v1";
@@ -284,5 +287,43 @@ export const api = {
   },
   updateSettings(payload: CompanyProfilePayload) {
     return request<CompanyProfile>("/settings", { method: "PATCH", body: JSON.stringify(payload) });
+  },
+  downloadPdf(kind: "quotes" | "invoices" | "credit-notes", id: string, filename: string) {
+    return fetch(`${base}/pdf/${kind}/${id}?download=1`).then(async (res) => {
+      if (!res.ok) throw new Error("PDF impossible");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  },
+  pdfUrl(kind: "quotes" | "invoices" | "credit-notes", id: string) {
+    return `${base}/pdf/${kind}/${id}`;
+  },
+  listMailLogs(params: { quoteId?: string; invoiceId?: string; creditNoteId?: string }) {
+    const qs = new URLSearchParams();
+    if (params.quoteId) qs.set("quoteId", params.quoteId);
+    if (params.invoiceId) qs.set("invoiceId", params.invoiceId);
+    if (params.creditNoteId) qs.set("creditNoteId", params.creditNoteId);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<MailLog[]>(`/mail${suffix}`);
+  },
+  sendQuoteMail(id: string, payload: MailPayload) {
+    return request<MailLog>(`/mail/quotes/${id}`, { method: "POST", body: JSON.stringify(payload) });
+  },
+  sendInvoiceMail(id: string, payload: MailPayload) {
+    return request<MailLog>(`/mail/invoices/${id}`, { method: "POST", body: JSON.stringify(payload) });
+  },
+  sendCreditNoteMail(id: string, payload: MailPayload) {
+    return request<MailLog>(`/mail/credit-notes/${id}`, { method: "POST", body: JSON.stringify(payload) });
+  },
+  sendReminderMail(payload: ReminderMailPayload) {
+    return request<{ reminder: Reminder; mail: MailLog }>("/mail/reminders", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
   },
 };

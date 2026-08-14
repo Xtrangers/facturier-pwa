@@ -12,3 +12,4 @@ export * from "./report";
 export * from "./money";
 export * from "./document";
 export * from "./settings";
+export * from "./mail";

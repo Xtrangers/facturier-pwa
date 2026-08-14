@@ -5,11 +5,13 @@ import {
   formatTaxRate,
   PRODUCT_UNIT_LABEL,
 } from "@facturier/shared";
-import type { Quote, QuoteStatus } from "@facturier/shared";
-import { ArrowLeft, Copy, Pencil, Trash2 } from "lucide-react";
+import type { MailLog, Quote, QuoteStatus } from "@facturier/shared";
+import { ArrowLeft, Copy, Download, Mail, Pencil, Printer, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { MailJournal } from "../components/MailJournal";
+import { SendMailDialog } from "../components/SendMailDialog";
 import { QuoteStatusBadge } from "../components/StatusBadge";
 import { api } from "../lib/api";
 
@@ -36,17 +38,23 @@ export function QuoteDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quote, setQuote] = useState<Quote | null>(null);
+  const [mails, setMails] = useState<MailLog[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
+  const [mailOpen, setMailOpen] = useState(false);
+  const [mailError, setMailError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  async function load(currentId: string) {
+    const [data, listed] = await Promise.all([api.getQuote(currentId), api.listMailLogs({ quoteId: currentId })]);
+    setQuote(data);
+    setMails(listed);
+  }
 
   useEffect(() => {
     if (!id) return;
-    api
-      .getQuote(id)
-      .then(setQuote)
-      .catch(() => setError("Devis introuvable"));
+    load(id).catch(() => setError("Devis introuvable"));
   }, [id]);
 
   if (error) return <p className="text-sm text-red-700">{error}</p>;
@@ -85,6 +93,34 @@ export function QuoteDetailPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => void api.downloadPdf("quotes", quote.id, `${quote.quoteNumber}.pdf`)}
+            className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium"
+          >
+            <Download className="h-4 w-4" />
+            PDF
+          </button>
+          <a
+            href={api.pdfUrl("quotes", quote.id)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium"
+          >
+            <Printer className="h-4 w-4" />
+            Imprimer
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              setMailError(null);
+              setMailOpen(true);
+            }}
+            className="inline-flex h-11 items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium"
+          >
+            <Mail className="h-4 w-4" />
+            Envoyer
+          </button>
           <button
             type="button"
             onClick={async () => {
@@ -270,9 +306,38 @@ export function QuoteDetailPage() {
             <p className="mt-1 font-semibold text-stone-900">{quote.clientName}</p>
             <p className="text-sm text-stone-500">{quote.clientNumber}</p>
           </Link>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5">
+            <h2 className="font-serif text-lg">Journal d’envoi</h2>
+            <div className="mt-3">
+              <MailJournal items={mails} />
+            </div>
+          </div>
         </section>
       </div>
 
+      <SendMailDialog
+        open={mailOpen}
+        title={`Envoyer ${quote.quoteNumber}`}
+        to={quote.clientEmail}
+        subject={`Devis ${quote.quoteNumber}`}
+        message={`Bonjour,\n\nVeuillez trouver ci-joint notre devis ${quote.quoteNumber}.\n\nCordialement,\nAtelier Nord Lumière`}
+        busy={busy}
+        error={mailError}
+        onClose={() => setMailOpen(false)}
+        onSend={async (payload) => {
+          setBusy(true);
+          setMailError(null);
+          try {
+            await api.sendQuoteMail(quote.id, payload);
+            setMailOpen(false);
+            await load(quote.id);
+          } catch {
+            setMailError("Envoi impossible. Vérifiez l’adresse e-mail du client.");
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
       <ConfirmDialog
         open={confirm}
         title="Supprimer ce brouillon ?"

@@ -77,6 +77,15 @@ Index : `(companyId, clientNumber)` unique, `(companyId, email)`, `(companyId, n
 - `companyId`, `entity`, `entityId`, `action`, `payload` JSON string, `createdAt`
 - Pas d’écran UI pour l’instant
 
+## MailLog
+
+- Envoi devis / facture / avoir / relance : destinataire, objet, statut SENT/FAILED, transport smtp|file
+- PDF joint ; sans SMTP le message est écrit en `.eml` sous `apps/api/storage/mail`
+
+## Quote / Invoice / CreditNote
+
+- `pdfUrl` renseigné à la génération Puppeteer
+
 ## Pas encore en schéma
 
 `User`, `PriceList`, `Document`, `DocumentTemplate`, `Attachment`

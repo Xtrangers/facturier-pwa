@@ -134,15 +134,38 @@ export function RemindersPage() {
                     <h3 className="font-semibold text-stone-900">{item.clientName}</h3>
                     <p className="text-sm text-amber-800">{delayLabel(item.days)}</p>
                   </Link>
-                  <div className="mt-3 flex items-center justify-between border-t border-stone-100 pt-3">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-stone-100 pt-3">
                     <span className="font-semibold">{formatEur(item.amountCents)}</span>
                     <button
                       type="button"
                       disabled={busyId === item.id}
                       onClick={() => void remind(item)}
+                      className="h-11 rounded-xl border border-stone-200 px-3 text-xs font-semibold disabled:opacity-60"
+                    >
+                      Noter
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busyId === `${item.id}-mail`}
+                      onClick={async () => {
+                        setBusyId(`${item.id}-mail`);
+                        setError(null);
+                        try {
+                          await api.sendReminderMail({
+                            invoiceId: item.target === "INVOICE" ? item.id : undefined,
+                            quoteId: item.target === "QUOTE" ? item.id : undefined,
+                            level: item.nextLevel,
+                          });
+                          await load();
+                        } catch {
+                          setError("E-mail de relance impossible. Vérifiez l’adresse du client.");
+                        } finally {
+                          setBusyId(null);
+                        }
+                      }}
                       className="h-11 rounded-xl bg-teal-800 px-3 text-xs font-semibold text-white disabled:opacity-60"
                     >
-                      {REMINDER_LEVEL_LABEL[item.nextLevel]}
+                      E-mail {REMINDER_LEVEL_LABEL[item.nextLevel]}
                     </button>
                   </div>
                 </article>
@@ -186,14 +209,39 @@ export function RemindersPage() {
                         ) : null}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          disabled={busyId === item.id}
-                          onClick={() => void remind(item)}
-                          className="h-11 rounded-xl bg-teal-800 px-3 text-xs font-semibold text-white disabled:opacity-60"
-                        >
-                          {REMINDER_LEVEL_LABEL[item.nextLevel]}
-                        </button>
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            disabled={busyId === item.id}
+                            onClick={() => void remind(item)}
+                            className="h-11 rounded-xl border border-stone-200 px-3 text-xs font-semibold disabled:opacity-60"
+                          >
+                            Noter
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busyId === `${item.id}-mail`}
+                            onClick={async () => {
+                              setBusyId(`${item.id}-mail`);
+                              setError(null);
+                              try {
+                                await api.sendReminderMail({
+                                  invoiceId: item.target === "INVOICE" ? item.id : undefined,
+                                  quoteId: item.target === "QUOTE" ? item.id : undefined,
+                                  level: item.nextLevel,
+                                });
+                                await load();
+                              } catch {
+                                setError("E-mail de relance impossible. Vérifiez l’adresse du client.");
+                              } finally {
+                                setBusyId(null);
+                              }
+                            }}
+                            className="h-11 rounded-xl bg-teal-800 px-3 text-xs font-semibold text-white disabled:opacity-60"
+                          >
+                            E-mail
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

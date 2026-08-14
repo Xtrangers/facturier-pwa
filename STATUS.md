@@ -78,14 +78,26 @@ Dev : `npm run dev` — API http://localhost:3001/api/v1 — Web http://localhos
 ### Documents `/documents`
 
 - Archive unifiée devis / factures / avoirs, recherche, type, dates, export CSV
-- Compteurs cliquables + total TTC de la liste
-- Pas encore de PDF : lien vers la fiche du document
+- PDF depuis chaque fiche (télécharger / imprimer / e-mail)
 
 ### Paramètres `/parametres`
 
 - Fiche entreprise : identité, adresse, SIRET, TVA, IBAN, BIC, logo (URL)
 - Délai de paiement, TVA par défaut, couleur PDF, mentions légales, CGV
 - Préfixes éditables ; prochains n° en lecture seule (pas de trou à l’émission)
+
+### PDF
+
+- Templates HTML/CSS + Puppeteer (devis, facture, avoir), A4
+- Mentions légales, IBAN, couleur et logo lus depuis Paramètres ; notes internes exclues
+- Filigrane BROUILLON ; `pdfUrl` stocké à la génération
+- Actions fiche : télécharger, imprimer, envoyer
+
+### E-mail
+
+- Envoi devis / facture / avoir / relance avec PDF joint
+- Journal d’envoi sur chaque fiche (SMTP si configuré, sinon fichier `.eml` + trace)
+- Relance : bouton E-mail (joint le PDF) ou Noter sans envoyer
 
 ### Seed
 
@@ -105,29 +117,13 @@ Aucun. Tous les écrans de navigation sont bâtis.
 
 ## Todo — suite MVP
 
-Ordre recommandé. Ne pas sauter le PDF : c’est la prochaine brique métier.
-
-### 1. Export PDF (prochaine étape)
-
-- [ ] Templates HTML/CSS + Puppeteer (devis, facture, avoir)
-- [ ] Mentions légales FR (identité, SIRET, TVA, échéance, pénalités, 40 € pro)
-- [ ] Notes internes exclues du PDF
-- [ ] Télécharger / imprimer ; stocker `pdfUrl`
-- [ ] Modèles `Document` / `DocumentTemplate` si besoin
-- [ ] Logo entreprise depuis les paramètres
-
-### 2. E-mail
-
-- [ ] Envoi devis / facture / relance (PDF en pièce jointe)
-- [ ] Journal d’envoi (pas seulement le statut `SENT`)
-
-### 3. Auth et multi-utilisateurs
+### 1. Auth et multi-utilisateurs (prochaine étape)
 
 - [ ] Login, rôles `ADMIN` / `EMPLOYEE` / `ACCOUNTANT`
 - [ ] Plus de `companyId` hardcodé côté API
 - [ ] PostgreSQL prod (même schéma Prisma)
 
-### 4. Conformité et produit (plus tard)
+### 2. Conformité et produit (plus tard)
 
 - [ ] Purge RGPD / export complet des données
 - [ ] Écran journal d’audit

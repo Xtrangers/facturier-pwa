@@ -11,5 +11,6 @@ Thumbs.db
 apps/api/prisma/*.db
 apps/api/prisma/*.db-journal
 *.log
+apps/api/storage
 .vite
 .turbo

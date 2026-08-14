@@ -2,7 +2,7 @@
 
 Webapp PWA de gestion commerciale et facturation (France).
 
-État du livré et todo : [STATUS.md](STATUS.md). **Prochaine étape : export PDF.**
+État du livré et todo : [STATUS.md](STATUS.md). **Prochaine étape : auth.**
 
 ## Skills
 
@@ -33,5 +33,5 @@ npm run dev
 API : http://localhost:3001  
 Web : http://localhost:5173
 
-Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents, paramètres.  
-Pas encore : PDF, e-mail, auth.
+Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents, paramètres, PDF, e-mail.  
+Pas encore : auth.

@@ -18,6 +18,8 @@ npm run dev
 - Interface : http://localhost:5173
 - API : http://localhost:3001/api/v1
 
+Premier PDF : Chrome est téléchargé par Puppeteer (`npx puppeteer browsers install chrome` dans `apps/api` si besoin). Sans SMTP, les e-mails sont tracés dans le journal et déposés en `.eml` sous `apps/api/storage/mail`.
+
 ## Stack
 
 | Couche | Choix |
@@ -30,11 +32,11 @@ npm run dev
 
 ## Modules livrés
 
-Clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents, paramètres.
+Clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents, paramètres, PDF, e-mail.
 
 ## Prochaine étape
 
-Export PDF (Puppeteer + mentions légales FR).
+Auth / multi-utilisateurs, puis PostgreSQL prod.
 
 ## Skills agent
 

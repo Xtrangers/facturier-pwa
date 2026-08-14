@@ -60,6 +60,7 @@ export class QuotesService {
       clientId: quote.clientId,
       clientName: quote.client.name,
       clientNumber: quote.client.clientNumber,
+      clientEmail: quote.client.email,
       quoteNumber: quote.quoteNumber,
       status: quote.status,
       issueDate: toIsoDate(quote.issueDate),
@@ -77,6 +78,7 @@ export class QuotesService {
       totalHtCents: quote.totalHtCents,
       totalTaxCents: quote.totalTaxCents,
       totalTtcCents: quote.totalTtcCents,
+      pdfUrl: quote.pdfUrl,
       invoiceId: quote.invoices.find((invoice) => !invoice.deletedAt)?.id ?? null,
       lines: quote.lines
         .slice()

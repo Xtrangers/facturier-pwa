@@ -43,6 +43,7 @@ export class CreditNotesService {
       companyId: note.companyId,
       clientId: note.clientId,
       clientName: note.client.name,
+      clientEmail: note.client.email,
       invoiceId: note.invoiceId,
       invoiceNumber: note.invoice.invoiceNumber,
       creditNumber: note.creditNumber,
@@ -55,6 +56,7 @@ export class CreditNotesService {
       totalHtCents: note.totalHtCents,
       totalTaxCents: note.totalTaxCents,
       totalTtcCents: note.totalTtcCents,
+      pdfUrl: note.pdfUrl,
       createdAt: note.createdAt.toISOString(),
       updatedAt: note.updatedAt.toISOString(),
     };

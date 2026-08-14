@@ -17,7 +17,7 @@ Application de gestion commerciale et facturation (France), PWA multiplateforme.
 | BDD locale | SQLite (`file:./dev.db`) |
 | BDD prod | PostgreSQL (même schéma Prisma) |
 | Auth (plus tard) | Auth.js ou NestJS JWT — pas avant le module utilisateurs |
-| PDF (plus tard) | Puppeteer + templates HTML/CSS |
+| PDF | Puppeteer + templates HTML/CSS |
 | Bureau (optionnel) | Tauri, jamais Electron sauf demande explicite |
 
 Ne pas introduire Vue, Angular, GraphQL, Firebase, Supabase, ni un autre ORM sans demande.
@@ -46,11 +46,10 @@ Livré / reste : [STATUS.md](../../../STATUS.md)
 5. Tableau de bord + rapports — **livré**
 6. Paiements (liste globale) + archive documents — **livré**
 7. Paramètres entreprise — **livré**
-8. Export PDF — **prochaine étape**
-9. E-mail
-10. Auth / multi-utilisateurs, PostgreSQL prod
+8. Export PDF + e-mail — **livré**
+9. Auth / multi-utilisateurs, PostgreSQL prod — **prochaine étape**
 
-Ne pas implémenter une phase suivante tant que la phase courante n’est pas utilisable (CRUD + UI responsive + API). Le PDF est la phase courante.
+Ne pas implémenter une phase suivante tant que la phase courante n’est pas utilisable (CRUD + UI responsive + API). L’auth est la phase courante.
 
 ## Conventions code
 

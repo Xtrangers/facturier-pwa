@@ -89,7 +89,7 @@ export function DocumentsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Documents"
-        subtitle="Archive des devis, factures et avoirs. L’export PDF arrivera ensuite."
+        subtitle="Archive des devis, factures et avoirs. PDF depuis chaque fiche."
         actions={
           <button
             type="button"
@@ -103,7 +103,7 @@ export function DocumentsPage() {
       />
 
       <p className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-900">
-        Pas encore de fichier PDF. Ouvrez un document pour le consulter ; l’impression PDF sera branchée ici.
+        Téléchargez ou envoyez le PDF depuis la fiche du document. Les notes internes n’y figurent pas.
       </p>
 
       <div className="grid gap-3 sm:grid-cols-4">
