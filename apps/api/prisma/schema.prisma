@@ -26,9 +26,11 @@ model Company {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  settings  CompanySettings?
-  clients   Client[]
-  auditLogs AuditLog[]
+  settings          CompanySettings?
+  clients           Client[]
+  productCategories ProductCategory[]
+  products          Product[]
+  auditLogs         AuditLog[]
 }
 
 model CompanySettings {
@@ -43,6 +45,7 @@ model CompanySettings {
   nextQuoteSeq       Int     @default(1)
   nextInvoiceSeq     Int     @default(1)
   nextCreditSeq      Int     @default(1)
+  nextProductSeq     Int     @default(1)
   defaultTaxRateBps  Int     @default(2000)
   defaultDueDays     Int     @default(30)
   pdfPrimaryColor    String  @default("#0F766E")
@@ -95,6 +98,43 @@ model ClientContact {
   email     String  @default("")
   phone     String  @default("")
   isPrimary Boolean @default(false)
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id])
+  name      String
+  products  Product[]
+
+  @@unique([companyId, name])
+}
+
+model Product {
+  id                 String           @id @default(cuid())
+  companyId          String
+  company            Company          @relation(fields: [companyId], references: [id])
+  sku                String
+  name               String
+  description        String           @default("")
+  categoryId         String?
+  category           ProductCategory? @relation(fields: [categoryId], references: [id])
+  type               String
+  unit               String
+  purchasePriceCents Int              @default(0)
+  salePriceHtCents   Int
+  taxRateBps         Int              @default(2000)
+  stockQty           Int?
+  barcode            String           @default("")
+  status             String           @default("ACTIVE")
+  deletedAt          DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@unique([companyId, sku])
+  @@index([companyId, status])
+  @@index([companyId, type])
+  @@index([companyId, name])
 }
 
 model AuditLog {

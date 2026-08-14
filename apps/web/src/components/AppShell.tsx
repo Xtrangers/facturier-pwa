@@ -1,12 +1,12 @@
 import {
   BarChart3,
   Bell,
-  Building2,
   FileText,
   Files,
   FolderOpen,
   LayoutDashboard,
   MoreHorizontal,
+  Package,
   Receipt,
   Settings,
   Users,
@@ -18,7 +18,7 @@ import type { LucideIcon } from "lucide-react";
 const nav: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
   { to: "/clients", label: "Clients", icon: Users },
-  { to: "/tarifs", label: "Tarifs et matériels", icon: Building2 },
+  { to: "/tarifs", label: "Tarifs et matériels", icon: Package },
   { to: "/devis", label: "Devis", icon: FileText },
   { to: "/factures", label: "Factures", icon: Receipt },
   { to: "/avoirs", label: "Avoirs", icon: FolderOpen },

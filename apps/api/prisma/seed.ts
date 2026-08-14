@@ -2,10 +2,162 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const PRODUCT_CATEGORIES = ["Éclairage", "Consommables", "Prestations"] as const;
+
+const PRODUCTS = [
+  {
+    sku: "SUS-LAIT-40",
+    name: "Suspension laiton 40 cm",
+    description: "Suspension en laiton brossé, abat-jour verre opale. Idéale entrée et salle à manger.",
+    category: "Éclairage",
+    type: "MATERIAL",
+    unit: "PIECE",
+    purchasePriceCents: 8900,
+    salePriceHtCents: 18900,
+    taxRateBps: 2000,
+    stockQty: 6,
+    barcode: "3760123450001",
+    status: "ACTIVE",
+  },
+  {
+    sku: "SUS-LIN-60",
+    name: "Suspension lin 60 cm",
+    description: "Abat-jour lin naturel, montage E27. Fin de série.",
+    category: "Éclairage",
+    type: "MATERIAL",
+    unit: "PIECE",
+    purchasePriceCents: 6200,
+    salePriceHtCents: 14500,
+    taxRateBps: 2000,
+    stockQty: 2,
+    barcode: "",
+    status: "ARCHIVED",
+  },
+  {
+    sku: "APPL-NICK-24",
+    name: "Applique murale nickel",
+    description: "Applique orientable nickel satiné, ampoule non fournie.",
+    category: "Éclairage",
+    type: "MATERIAL",
+    unit: "PIECE",
+    purchasePriceCents: 4200,
+    salePriceHtCents: 9800,
+    taxRateBps: 2000,
+    stockQty: 12,
+    barcode: "3760123450002",
+    status: "ACTIVE",
+  },
+  {
+    sku: "AMP-LED-E27",
+    name: "Ampoule LED E27 8 W",
+    description: "Blanc chaud 2700 K, équivalent 60 W, dimmable.",
+    category: "Consommables",
+    type: "MATERIAL",
+    unit: "PIECE",
+    purchasePriceCents: 280,
+    salePriceHtCents: 890,
+    taxRateBps: 2000,
+    stockQty: 48,
+    barcode: "3760123450003",
+    status: "ACTIVE",
+  },
+  {
+    sku: "CBL-TEXT-M",
+    name: "Câble textile au mètre",
+    description: "Câble textile 2×0,75 mm², coloris ivoire. Vendu au mètre.",
+    category: "Consommables",
+    type: "MATERIAL",
+    unit: "METER",
+    purchasePriceCents: 180,
+    salePriceHtCents: 450,
+    taxRateBps: 2000,
+    stockQty: 80,
+    barcode: "",
+    status: "ACTIVE",
+  },
+  {
+    sku: "POSE-LUM",
+    name: "Pose de luminaire",
+    description: "Installation d’un luminaire existant, hors création de circuit.",
+    category: "Prestations",
+    type: "LABOR",
+    unit: "HOUR",
+    purchasePriceCents: 0,
+    salePriceHtCents: 6500,
+    taxRateBps: 2000,
+    stockQty: null,
+    barcode: "",
+    status: "ACTIVE",
+  },
+  {
+    sku: "ETUDE-LUM",
+    name: "Étude d’éclairage",
+    description: "Relevé, plan d’implantation et préconisations pour une pièce ou un hall.",
+    category: "Prestations",
+    type: "SERVICE",
+    unit: "FLAT",
+    purchasePriceCents: 0,
+    salePriceHtCents: 25000,
+    taxRateBps: 2000,
+    stockQty: null,
+    barcode: "",
+    status: "ACTIVE",
+  },
+  {
+    sku: "DEPL-LILLE",
+    name: "Frais de déplacement — métropole lilloise",
+    description: "Forfait aller-retour dans un rayon de 30 km autour de Lille.",
+    category: "Prestations",
+    type: "TRAVEL",
+    unit: "FLAT",
+    purchasePriceCents: 0,
+    salePriceHtCents: 4500,
+    taxRateBps: 2000,
+    stockQty: null,
+    barcode: "",
+    status: "ACTIVE",
+  },
+];
+
+async function seedProducts(companyId: string) {
+  const existingCount = await prisma.product.count({ where: { companyId } });
+  if (existingCount > 0) {
+    console.log("Tarifs déjà présents, seed produits ignoré.");
+    return;
+  }
+
+  const categoryIds = new Map<string, string>();
+  for (const name of PRODUCT_CATEGORIES) {
+    const category = await prisma.productCategory.create({
+      data: { companyId, name },
+    });
+    categoryIds.set(name, category.id);
+  }
+
+  for (const row of PRODUCTS) {
+    const { category, ...data } = row;
+    await prisma.product.create({
+      data: {
+        ...data,
+        companyId,
+        categoryId: categoryIds.get(category) ?? null,
+      },
+    });
+  }
+
+  await prisma.companySettings.update({
+    where: { companyId },
+    data: { nextProductSeq: 9 },
+  });
+
+  console.log("Seed tarifs OK — 8 articles");
+}
+
 async function main() {
   const existing = await prisma.company.findFirst();
   if (existing) {
-    console.log("Entreprise déjà présente, seed ignoré.");
+    console.log("Entreprise déjà présente, seed clients ignoré.");
+    await seedProducts(existing.id);
     return;
   }
 
@@ -26,6 +178,7 @@ async function main() {
       settings: {
         create: {
           nextClientSeq: 9,
+          nextProductSeq: 9,
         },
       },
     },
@@ -175,6 +328,7 @@ async function main() {
     });
   }
 
+  await seedProducts(company.id);
   console.log("Seed OK — Atelier Nord Lumière + 8 clients");
 }
 

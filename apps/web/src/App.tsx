@@ -4,6 +4,9 @@ import { ClientsPage } from "./pages/ClientsPage";
 import { ClientDetailPage } from "./pages/ClientDetailPage";
 import { ClientFormPage } from "./pages/ClientFormPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
+import { ProductsPage } from "./pages/ProductsPage";
+import { ProductDetailPage } from "./pages/ProductDetailPage";
+import { ProductFormPage } from "./pages/ProductFormPage";
 
 export default function App() {
   return (
@@ -15,7 +18,10 @@ export default function App() {
         <Route path="clients/nouveau" element={<ClientFormPage />} />
         <Route path="clients/:id" element={<ClientDetailPage />} />
         <Route path="clients/:id/modifier" element={<ClientFormPage />} />
-        <Route path="tarifs" element={<ComingSoonPage title="Tarifs et matériels" />} />
+        <Route path="tarifs" element={<ProductsPage />} />
+        <Route path="tarifs/nouveau" element={<ProductFormPage />} />
+        <Route path="tarifs/:id" element={<ProductDetailPage />} />
+        <Route path="tarifs/:id/modifier" element={<ProductFormPage />} />
         <Route path="devis" element={<ComingSoonPage title="Devis" />} />
         <Route path="factures" element={<ComingSoonPage title="Factures" />} />
         <Route path="avoirs" element={<ComingSoonPage title="Avoirs" />} />
