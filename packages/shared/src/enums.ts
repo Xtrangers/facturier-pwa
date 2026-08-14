@@ -78,3 +78,37 @@ export const TAX_RATE_OPTIONS = [
   { bps: 1000, label: "10 %" },
   { bps: 2000, label: "20 %" },
 ] as const;
+
+export const QuoteStatus = {
+  DRAFT: "DRAFT",
+  SENT: "SENT",
+  PENDING: "PENDING",
+  ACCEPTED: "ACCEPTED",
+  REJECTED: "REJECTED",
+  EXPIRED: "EXPIRED",
+  CONVERTED: "CONVERTED",
+} as const;
+export type QuoteStatus = (typeof QuoteStatus)[keyof typeof QuoteStatus];
+
+export const QUOTE_STATUS_LABEL: Record<QuoteStatus, string> = {
+  DRAFT: "Brouillon",
+  SENT: "Envoyé",
+  PENDING: "En attente",
+  ACCEPTED: "Accepté",
+  REJECTED: "Refusé",
+  EXPIRED: "Expiré",
+  CONVERTED: "Transformé en facture",
+};
+
+export const DiscountKind = {
+  NONE: "NONE",
+  PERCENT: "PERCENT",
+  AMOUNT: "AMOUNT",
+} as const;
+export type DiscountKind = (typeof DiscountKind)[keyof typeof DiscountKind];
+
+export const DISCOUNT_KIND_LABEL: Record<DiscountKind, string> = {
+  NONE: "Aucune",
+  PERCENT: "Pourcentage",
+  AMOUNT: "Montant",
+};

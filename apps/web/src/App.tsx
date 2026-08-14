@@ -4,6 +4,9 @@ import { ClientsPage } from "./pages/ClientsPage";
 import { ClientDetailPage } from "./pages/ClientDetailPage";
 import { ClientFormPage } from "./pages/ClientFormPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
+import { QuotesPage } from "./pages/QuotesPage";
+import { QuoteDetailPage } from "./pages/QuoteDetailPage";
+import { QuoteFormPage } from "./pages/QuoteFormPage";
 import { ProductsPage } from "./pages/ProductsPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { ProductFormPage } from "./pages/ProductFormPage";
@@ -22,7 +25,10 @@ export default function App() {
         <Route path="tarifs/nouveau" element={<ProductFormPage />} />
         <Route path="tarifs/:id" element={<ProductDetailPage />} />
         <Route path="tarifs/:id/modifier" element={<ProductFormPage />} />
-        <Route path="devis" element={<ComingSoonPage title="Devis" />} />
+        <Route path="devis" element={<QuotesPage />} />
+        <Route path="devis/nouveau" element={<QuoteFormPage />} />
+        <Route path="devis/:id" element={<QuoteDetailPage />} />
+        <Route path="devis/:id/modifier" element={<QuoteFormPage />} />
         <Route path="factures" element={<ComingSoonPage title="Factures" />} />
         <Route path="avoirs" element={<ComingSoonPage title="Avoirs" />} />
         <Route path="paiements" element={<ComingSoonPage title="Paiements" />} />

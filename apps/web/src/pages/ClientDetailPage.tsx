@@ -1,11 +1,11 @@
-import { CLIENT_TYPE_LABEL, formatEur } from "@facturier/shared";
-import type { Client } from "@facturier/shared";
+import { CLIENT_TYPE_LABEL, formatDateFr, formatEur } from "@facturier/shared";
+import type { Client, Quote } from "@facturier/shared";
 import { ArrowLeft, Copy, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { EmptyState } from "../components/EmptyState";
-import { StatusBadge } from "../components/StatusBadge";
+import { StatusBadge, QuoteStatusBadge } from "../components/StatusBadge";
 import { api } from "../lib/api";
 
 function Field({ label, value }: { label: string; value?: string }) {
@@ -21,15 +21,31 @@ export function ClientDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [client, setClient] = useState<Client | null>(null);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    let cancelled = false;
     api
       .getClient(id)
-      .then(setClient)
-      .catch(() => setError("Client introuvable"));
+      .then(async (data) => {
+        if (cancelled) return;
+        setClient(data);
+        try {
+          const listed = await api.listQuotes({ clientId: data.id });
+          if (!cancelled) setQuotes(listed.items);
+        } catch {
+          if (!cancelled) setQuotes([]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError("Client introuvable");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (error) return <p className="text-sm text-red-700">{error}</p>;
@@ -136,7 +152,26 @@ export function ClientDetailPage() {
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="font-serif text-lg">Devis et factures</h2>
             <div className="mt-3">
-              <EmptyState title="Aucun document" description="L’historique apparaîtra dès la création des premiers devis et factures." />
+              {quotes.length === 0 ? (
+                <EmptyState title="Aucun document" description="L’historique apparaîtra dès la création des premiers devis et factures." />
+              ) : (
+                <ul className="space-y-2">
+                  {quotes.map((quote) => (
+                    <li key={quote.id}>
+                      <Link to={`/devis/${quote.id}`} className="flex items-center justify-between rounded-xl border border-stone-100 px-3 py-2 hover:bg-stone-50">
+                        <div>
+                          <p className="text-sm font-semibold text-stone-900">{quote.quoteNumber}</p>
+                          <p className="text-xs text-stone-500">{formatDateFr(quote.issueDate)}</p>
+                        </div>
+                        <div className="text-right">
+                          <QuoteStatusBadge status={quote.status} />
+                          <p className="mt-1 text-xs font-medium text-stone-700">{formatEur(quote.totalTtcCents)}</p>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </section>

@@ -1,4 +1,14 @@
-import type { Client, ClientPayload, Paginated, Product, ProductCategory, ProductPayload } from "@facturier/shared";
+import type {
+  Client,
+  ClientPayload,
+  Paginated,
+  Product,
+  ProductCategory,
+  ProductPayload,
+  Quote,
+  QuotePayload,
+  QuoteStatus,
+} from "@facturier/shared";
 
 const base = "/api/v1";
 
@@ -18,11 +28,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  listClients(params: { q?: string; type?: string; status?: string }) {
+  listClients(params: { q?: string; type?: string; status?: string; pageSize?: number }) {
     const qs = new URLSearchParams();
     if (params.q) qs.set("q", params.q);
     if (params.type) qs.set("type", params.type);
     if (params.status) qs.set("status", params.status);
+    if (params.pageSize) qs.set("pageSize", String(params.pageSize));
     const suffix = qs.toString() ? `?${qs}` : "";
     return request<Paginated<Client>>(`/clients${suffix}`);
   },
@@ -47,12 +58,13 @@ export const api = {
       return res.blob();
     });
   },
-  listProducts(params: { q?: string; type?: string; status?: string; categoryId?: string }) {
+  listProducts(params: { q?: string; type?: string; status?: string; categoryId?: string; pageSize?: number }) {
     const qs = new URLSearchParams();
     if (params.q) qs.set("q", params.q);
     if (params.type) qs.set("type", params.type);
     if (params.status) qs.set("status", params.status);
     if (params.categoryId) qs.set("categoryId", params.categoryId);
+    if (params.pageSize) qs.set("pageSize", String(params.pageSize));
     const suffix = qs.toString() ? `?${qs}` : "";
     return request<Paginated<Product>>(`/products${suffix}`);
   },
@@ -79,5 +91,31 @@ export const api = {
       if (!res.ok) throw new Error("Export impossible");
       return res.blob();
     });
+  },
+  listQuotes(params: { q?: string; status?: string; clientId?: string }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.status) qs.set("status", params.status);
+    if (params.clientId) qs.set("clientId", params.clientId);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<Paginated<Quote>>(`/quotes${suffix}`);
+  },
+  getQuote(id: string) {
+    return request<Quote>(`/quotes/${id}`);
+  },
+  createQuote(payload: QuotePayload) {
+    return request<Quote>("/quotes", { method: "POST", body: JSON.stringify(payload) });
+  },
+  updateQuote(id: string, payload: QuotePayload) {
+    return request<Quote>(`/quotes/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+  },
+  deleteQuote(id: string) {
+    return request<{ ok: boolean }>(`/quotes/${id}`, { method: "DELETE" });
+  },
+  duplicateQuote(id: string) {
+    return request<Quote>(`/quotes/${id}/duplicate`, { method: "POST" });
+  },
+  changeQuoteStatus(id: string, status: QuoteStatus) {
+    return request<Quote>(`/quotes/${id}/status`, { method: "POST", body: JSON.stringify({ status }) });
   },
 };

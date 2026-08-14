@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateClientDto } from "./dto/create-client.dto";
@@ -229,6 +229,12 @@ export class ClientsService {
 
   async remove(id: string) {
     const existing = await this.get(id);
+    const quoteCount = await this.prisma.quote.count({
+      where: { clientId: id, deletedAt: null },
+    });
+    if (quoteCount > 0) {
+      throw new ConflictException("Des devis sont liés à ce client.");
+    }
     await this.prisma.client.update({
       where: { id },
       data: { deletedAt: new Date() },

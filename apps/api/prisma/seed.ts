@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { computeQuoteTotals } from "@facturier/shared";
+import type { DiscountKind } from "@facturier/shared";
 
 const prisma = new PrismaClient();
 
@@ -153,11 +155,257 @@ async function seedProducts(companyId: string) {
   console.log("Seed tarifs OK — 8 articles");
 }
 
+async function seedQuotes(companyId: string) {
+  const existingCount = await prisma.quote.count({ where: { companyId } });
+  if (existingCount > 0) {
+    console.log("Devis déjà présents, seed devis ignoré.");
+    return;
+  }
+
+  const client = async (clientNumber: string) => {
+    const row = await prisma.client.findFirst({ where: { companyId, clientNumber } });
+    if (!row) throw new Error(`Client ${clientNumber} manquant pour le seed devis`);
+    return row;
+  };
+  const product = async (sku: string) => {
+    const row = await prisma.product.findFirst({ where: { companyId, sku } });
+    if (!row) throw new Error(`Article ${sku} manquant pour le seed devis`);
+    return row;
+  };
+
+  const verre = await client("C-00001");
+  const hotel = await client("C-00002");
+  const sophie = await client("C-00003");
+  const sus = await product("SUS-LAIT-40");
+  const amp = await product("AMP-LED-E27");
+  const pose = await product("POSE-LUM");
+  const appl = await product("APPL-NICK-24");
+  const etude = await product("ETUDE-LUM");
+
+  type SeedLine = {
+    productId: string;
+    designation: string;
+    description: string;
+    quantity: number;
+    unit: string;
+    unitPriceCents: number;
+    discountKind: DiscountKind;
+    discountValue: number;
+    taxRateBps: number;
+  };
+
+  async function createQuote(params: {
+    clientId: string;
+    quoteNumber: string;
+    status: string;
+    issueDate: Date;
+    validUntil: Date;
+    notes: string;
+    terms: string;
+    discountKind: DiscountKind;
+    discountValue: number;
+    travelFeeCents: number;
+    depositCents: number;
+    lines: SeedLine[];
+  }) {
+    const computed = computeQuoteTotals({
+      lines: params.lines,
+      travelFeeCents: params.travelFeeCents,
+      travelFeeTaxRateBps: 2000,
+      discountKind: params.discountKind,
+      discountValue: params.discountValue,
+    });
+    await prisma.quote.create({
+      data: {
+        companyId,
+        clientId: params.clientId,
+        quoteNumber: params.quoteNumber,
+        status: params.status,
+        issueDate: params.issueDate,
+        validUntil: params.validUntil,
+        notes: params.notes,
+        terms: params.terms,
+        discountKind: params.discountKind,
+        discountValue: params.discountValue,
+        travelFeeCents: params.travelFeeCents,
+        travelFeeTaxRateBps: 2000,
+        depositCents: params.depositCents,
+        linesHtCents: computed.linesHtCents,
+        discountCents: computed.discountCents,
+        totalHtCents: computed.totalHtCents,
+        totalTaxCents: computed.totalTaxCents,
+        totalTtcCents: computed.totalTtcCents,
+        lines: {
+          create: params.lines.map((line, index) => ({
+            productId: line.productId,
+            position: index,
+            designation: line.designation,
+            description: line.description,
+            quantity: line.quantity,
+            unit: line.unit,
+            unitPriceCents: line.unitPriceCents,
+            discountKind: line.discountKind,
+            discountValue: line.discountValue,
+            taxRateBps: line.taxRateBps,
+            lineHtCents: computed.lines[index].lineHtCents,
+            lineTaxCents: computed.lines[index].lineTaxCents,
+            lineTtcCents: computed.lines[index].lineTtcCents,
+          })),
+        },
+      },
+    });
+  }
+
+  await createQuote({
+    clientId: verre.id,
+    quoteNumber: "D-2026-00001",
+    status: "DRAFT",
+    issueDate: new Date("2026-08-04T12:00:00.000Z"),
+    validUntil: new Date("2026-09-03T12:00:00.000Z"),
+    notes: "Remplacement des suspensions du showroom.",
+    terms: "Devis valable 30 jours. Acompte de 30 % à la commande.",
+    discountKind: "PERCENT",
+    discountValue: 5,
+    travelFeeCents: 4500,
+    depositCents: 0,
+    lines: [
+      {
+        productId: sus.id,
+        designation: sus.name,
+        description: sus.description,
+        quantity: 2,
+        unit: sus.unit,
+        unitPriceCents: sus.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: sus.taxRateBps,
+      },
+      {
+        productId: amp.id,
+        designation: amp.name,
+        description: amp.description,
+        quantity: 2,
+        unit: amp.unit,
+        unitPriceCents: amp.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: amp.taxRateBps,
+      },
+      {
+        productId: pose.id,
+        designation: pose.name,
+        description: pose.description,
+        quantity: 3,
+        unit: pose.unit,
+        unitPriceCents: pose.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: pose.taxRateBps,
+      },
+    ],
+  });
+
+  await createQuote({
+    clientId: hotel.id,
+    quoteNumber: "D-2026-00002",
+    status: "SENT",
+    issueDate: new Date("2026-07-22T12:00:00.000Z"),
+    validUntil: new Date("2026-08-21T12:00:00.000Z"),
+    notes: "Hall d’entrée — étude + pose des appliques.",
+    terms: "Pose hors création de circuit électrique.",
+    discountKind: "NONE",
+    discountValue: 0,
+    travelFeeCents: 4500,
+    depositCents: 0,
+    lines: [
+      {
+        productId: etude.id,
+        designation: etude.name,
+        description: etude.description,
+        quantity: 1,
+        unit: etude.unit,
+        unitPriceCents: etude.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: etude.taxRateBps,
+      },
+      {
+        productId: appl.id,
+        designation: appl.name,
+        description: appl.description,
+        quantity: 4,
+        unit: appl.unit,
+        unitPriceCents: appl.salePriceHtCents,
+        discountKind: "PERCENT",
+        discountValue: 10,
+        taxRateBps: appl.taxRateBps,
+      },
+      {
+        productId: pose.id,
+        designation: pose.name,
+        description: pose.description,
+        quantity: 8,
+        unit: pose.unit,
+        unitPriceCents: pose.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: pose.taxRateBps,
+      },
+    ],
+  });
+
+  await createQuote({
+    clientId: sophie.id,
+    quoteNumber: "D-2026-00003",
+    status: "ACCEPTED",
+    issueDate: new Date("2026-07-10T12:00:00.000Z"),
+    validUntil: new Date("2026-08-09T12:00:00.000Z"),
+    notes: "Suspension cuisine + pose.",
+    terms: "",
+    discountKind: "NONE",
+    discountValue: 0,
+    travelFeeCents: 0,
+    depositCents: 20000,
+    lines: [
+      {
+        productId: sus.id,
+        designation: sus.name,
+        description: sus.description,
+        quantity: 1,
+        unit: sus.unit,
+        unitPriceCents: sus.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: sus.taxRateBps,
+      },
+      {
+        productId: pose.id,
+        designation: pose.name,
+        description: pose.description,
+        quantity: 2,
+        unit: pose.unit,
+        unitPriceCents: pose.salePriceHtCents,
+        discountKind: "NONE",
+        discountValue: 0,
+        taxRateBps: pose.taxRateBps,
+      },
+    ],
+  });
+
+  await prisma.companySettings.update({
+    where: { companyId },
+    data: { nextQuoteSeq: 4 },
+  });
+
+  console.log("Seed devis OK — 3 devis");
+}
+
 async function main() {
   const existing = await prisma.company.findFirst();
   if (existing) {
     console.log("Entreprise déjà présente, seed clients ignoré.");
     await seedProducts(existing.id);
+    await seedQuotes(existing.id);
     return;
   }
 
@@ -179,6 +427,7 @@ async function main() {
         create: {
           nextClientSeq: 9,
           nextProductSeq: 9,
+          nextQuoteSeq: 4,
         },
       },
     },
@@ -329,6 +578,7 @@ async function main() {
   }
 
   await seedProducts(company.id);
+  await seedQuotes(company.id);
   console.log("Seed OK — Atelier Nord Lumière + 8 clients");
 }
 
