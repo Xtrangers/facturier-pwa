@@ -13,13 +13,13 @@ Une `Company` possède tout. Filtrer **toujours** par `companyId` (jamais d’ac
 
 MVP : une entreprise seedée, `companyId` fixe côté API jusqu’à l’auth.
 
-## Entités MVP (phase clients + socle)
+## Entités en base (livrées)
 
-`Company`, `CompanySettings`, `User` (stub), `Client`, `ClientContact`
+`Company`, `CompanySettings`, `Client`, `ClientContact`, `Product`, `ProductCategory`, `Quote`, `QuoteLine`, `Invoice`, `InvoiceLine`, `CreditNote`, `Payment`, `Reminder`, `AuditLog`
 
-## Entités suivantes (ne pas créer tant que non demandées, mais types OK dans shared)
+## Pas encore en base
 
-`Product`, `ProductCategory`, `PriceList`, `Quote`, `QuoteLine`, `Invoice`, `InvoiceLine`, `CreditNote`, `Payment`, `Document`, `DocumentTemplate`, `Attachment`, `Reminder`, `AuditLog`
+`User`, `PriceList`, `Document`, `DocumentTemplate`, `Attachment`
 
 ## Argent
 
@@ -52,10 +52,10 @@ Les enums TypeScript vivent dans `packages/shared`. Prisma `enum` doit matcher.
 
 ## Audit
 
-Toute mutation métier écrit un `AuditLog` : `entity`, `entityId`, `action`, `userId`, `payload`, `createdAt`. Pour le MVP clients : logger create / update / delete / duplicate / export.
+Toute mutation métier écrit un `AuditLog` : `entity`, `entityId`, `action`, `payload`, `createdAt`. Pas d’écran UI pour l’instant.
 
 ## Règles transverses
 
-- Client `BLOCKED` : on peut consulter, pas créer de devis/facture (à enforce plus tard)
-- Solde client = somme `amountDue` des factures non annulées − avoirs
+- Client `BLOCKED` : on peut consulter, pas créer de devis/facture (**enforcé**)
+- Solde client = somme `amountDueCents` des factures non brouillon / non annulées
 - Dupliquer une fiche = nouvel id, nouveau numéro, suffixe « (copie) » sur le nom

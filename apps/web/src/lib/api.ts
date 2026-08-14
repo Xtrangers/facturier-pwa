@@ -3,6 +3,7 @@ import type {
   ClientPayload,
   CreditNote,
   CreditNotePayload,
+  Dashboard,
   Invoice,
   InvoicePayload,
   Paginated,
@@ -17,6 +18,8 @@ import type {
   Reminder,
   ReminderPayload,
   ReminderQueueItem,
+  ReminderSummary,
+  Report,
 } from "@facturier/shared";
 
 const base = "/api/v1";
@@ -190,5 +193,34 @@ export const api = {
   },
   createReminder(payload: ReminderPayload) {
     return request<Reminder>("/reminders", { method: "POST", body: JSON.stringify(payload) });
+  },
+  reminderSummary() {
+    return request<ReminderSummary>("/reminders/summary");
+  },
+  exportRemindersCsv() {
+    return fetch(`${base}/reminders/export`).then(async (res) => {
+      if (!res.ok) throw new Error("Export impossible");
+      return res.blob();
+    });
+  },
+  getDashboard() {
+    return request<Dashboard>("/dashboard");
+  },
+  getReport(params: { from?: string; to?: string }) {
+    const qs = new URLSearchParams();
+    if (params.from) qs.set("from", params.from);
+    if (params.to) qs.set("to", params.to);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<Report>(`/reports${suffix}`);
+  },
+  exportReportCsv(params: { from?: string; to?: string }) {
+    const qs = new URLSearchParams();
+    if (params.from) qs.set("from", params.from);
+    if (params.to) qs.set("to", params.to);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return fetch(`${base}/reports/export${suffix}`).then(async (res) => {
+      if (!res.ok) throw new Error("Export impossible");
+      return res.blob();
+    });
   },
 };

@@ -30,7 +30,7 @@ const nav: { to: string; label: string; icon: LucideIcon }[] = [
 ];
 
 const mobileNav = [
-  nav[0],
+  { ...nav[0], label: "Accueil" },
   nav[1],
   nav[3],
   nav[4],

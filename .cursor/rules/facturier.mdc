@@ -16,4 +16,6 @@ Avant d’implémenter un module, lire le skill correspondant dans `.cursor/skil
 - `facturier-clients` — clients
 - `facturier-documents` — devis / factures / PDF
 
-UI en français. Montants en centimes en base. Filtrer par `companyId`. Ne pas supprimer une facture émise. Respecter l’ordre MVP : clients d’abord.
+UI en français. Montants en centimes en base. Filtrer par `companyId`. Ne pas supprimer une facture émise.
+
+Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports. **Prochaine étape : PDF.** Voir `STATUS.md`.

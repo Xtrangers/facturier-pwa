@@ -11,7 +11,7 @@ Lire aussi `facturier`, `facturier-domain`, `facturier-ui`.
 
 1. **Liste** `/clients` — recherche, filtres type/statut, tableau desktop / cartes mobile
 2. **Création** `/clients/nouveau`
-3. **Fiche** `/clients/:id` — résumé, coordonnées, contacts, notes, solde, historique documents (vide au MVP)
+3. **Fiche** `/clients/:id` — résumé, coordonnées, contacts, notes, solde, historique devis + factures
 4. **Édition** `/clients/:id/modifier`
 
 ## Champs fiche
@@ -54,9 +54,9 @@ Actions : ouvrir, dupliquer, supprimer (confirm).
 
 Colonnes : numéro, nom, type, statut, email, téléphone, siret, tva, adresse, CP, ville, solde. Encodage UTF-8 + BOM pour Excel.
 
-## Historique (MVP)
+## Historique
 
-Bloc « Devis et factures » avec empty state : « Aucun document pour l’instant ». Brancher plus tard.
+Bloc « Devis et factures » : listes liées au client (numéro, date, statut, montant / restant dû). Empty state s’il n’y a aucun document.
 
 ## Copy FR
 

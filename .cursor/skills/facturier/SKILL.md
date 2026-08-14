@@ -37,15 +37,18 @@ Frontend : `http://localhost:5173` (proxy `/api` → API)
 
 ## Ordre d’implémentation
 
-1. Clients (en cours)
-2. Tarifs / matériels / prestations
-3. Devis
-4. Factures + numérotation
-5. Export PDF
-6. Paiements et relances
-7. Avoirs, rapports, multi-utilisateurs
+Livré / reste : [STATUS.md](../../../STATUS.md)
 
-Ne pas implémenter une phase suivante tant que la phase courante n’est pas utilisable (CRUD + UI responsive + API).
+1. Clients — **livré**
+2. Tarifs / matériels / prestations — **livré**
+3. Devis — **livré**
+4. Factures + numérotation + paiements sur fiche + avoirs + relances — **livré**
+5. Tableau de bord + rapports — **livré**
+6. Export PDF — **prochaine étape**
+7. Paramètres entreprise, e-mail
+8. Auth / multi-utilisateurs, PostgreSQL prod
+
+Ne pas implémenter une phase suivante tant que la phase courante n’est pas utilisable (CRUD + UI responsive + API). Le PDF est la phase courante.
 
 ## Conventions code
 

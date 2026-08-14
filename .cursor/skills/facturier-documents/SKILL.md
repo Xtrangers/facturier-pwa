@@ -5,7 +5,7 @@ description: Guides quotes, invoices, credit notes, payments, numbering, and PDF
 
 # Facturier — documents (devis, factures, avoirs)
 
-Ne pas implémenter tant que le module Clients n’est pas livré, sauf types partagés.
+Clients, devis, factures, avoirs, paiements sur fiche et relances sont **livrés**. Phase courante : **PDF**. Détail : [STATUS.md](../../../STATUS.md).
 
 ## Pipeline
 
@@ -38,10 +38,10 @@ Paiements : partiels autorisés ; `amountDue = totalTtc - amountPaid` (avoirs d�
 
 ## PDF
 
-Templates HTML/CSS + Puppeteer. Logo entreprise, couleurs, CGV, IBAN, mentions légales. Notes internes **exclues**.
+**Phase courante.** Templates HTML/CSS + Puppeteer. Logo entreprise, couleurs, CGV, IBAN, mentions légales. Notes internes **exclues**.
 
 Actions : télécharger, imprimer, envoyer e-mail, archiver `pdfUrl`.
 
 ## Relances
 
-Plus tard : factures `OVERDUE` + devis `PENDING` / `SENT` proches de l’expiration.
+Livré : file factures échues + devis `SENT` / `PENDING` proches de l’expiration ; niveaux 1 / 2 / mise en demeure ; export CSV. E-mail de relance : plus tard.

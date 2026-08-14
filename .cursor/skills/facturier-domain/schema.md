@@ -37,6 +37,12 @@
 
 Index : `(companyId, clientNumber)` unique, `(companyId, email)`, `(companyId, name)`, `(companyId, status)`.
 
+## ProductCategory / Product
+
+- Catégorie : nom unique par entreprise
+- Article : `sku` unique par entreprise, `type` MATERIAL | LABOR | SERVICE | TRAVEL
+- Unité PIECE | HOUR | DAY | METER | FLAT, `salePriceHtCents`, `taxRateBps`, statut ACTIVE | ARCHIVED, `deletedAt`
+
 ## Quote / QuoteLine
 
 - Numéro `D-YYYY-00001`, totaux en centimes, `taxRateBps`
@@ -65,3 +71,12 @@ Index : `(companyId, clientNumber)` unique, `(companyId, email)`, `(companyId, n
 
 - Cible INVOICE ou QUOTE, niveau 1 / 2 / 3
 - File : factures échues non soldées + devis SENT/PENDING proches de l’expiration
+
+## AuditLog
+
+- `companyId`, `entity`, `entityId`, `action`, `payload` JSON string, `createdAt`
+- Pas d’écran UI pour l’instant
+
+## Pas encore en schéma
+
+`User`, `PriceList`, `Document`, `DocumentTemplate`, `Attachment`

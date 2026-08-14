@@ -6,5 +6,7 @@ export * from "./quote";
 export * from "./invoice";
 export * from "./credit-note";
 export * from "./reminder";
+export * from "./dashboard";
+export * from "./report";
 export * from "./money";
 export * from "./document";

@@ -30,4 +30,12 @@ export type ReminderQueueItem = {
   date: string;
   days: number;
   lastLevel: number | null;
+  nextLevel: ReminderLevel;
+};
+
+export type ReminderSummary = {
+  overdueCount: number;
+  overdueCents: number;
+  quotesSoonCount: number;
+  quotesSoonCents: number;
 };

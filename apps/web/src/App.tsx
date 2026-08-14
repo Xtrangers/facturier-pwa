@@ -17,13 +17,15 @@ import { CreditNotesPage } from "./pages/CreditNotesPage";
 import { CreditNoteDetailPage } from "./pages/CreditNoteDetailPage";
 import { CreditNoteFormPage } from "./pages/CreditNoteFormPage";
 import { RemindersPage } from "./pages/RemindersPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { ReportsPage } from "./pages/ReportsPage";
 
 export default function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
-        <Route index element={<Navigate to="/clients" replace />} />
-        <Route path="tableau-de-bord" element={<ComingSoonPage title="Tableau de bord" />} />
+        <Route index element={<Navigate to="/tableau-de-bord" replace />} />
+        <Route path="tableau-de-bord" element={<DashboardPage />} />
         <Route path="clients" element={<ClientsPage />} />
         <Route path="clients/nouveau" element={<ClientFormPage />} />
         <Route path="clients/:id" element={<ClientDetailPage />} />
@@ -45,7 +47,7 @@ export default function App() {
         <Route path="avoirs/:id" element={<CreditNoteDetailPage />} />
         <Route path="paiements" element={<ComingSoonPage title="Paiements" />} />
         <Route path="relances" element={<RemindersPage />} />
-        <Route path="rapports" element={<ComingSoonPage title="Rapports" />} />
+        <Route path="rapports" element={<ReportsPage />} />
         <Route path="documents" element={<ComingSoonPage title="Documents" />} />
         <Route path="parametres" element={<ComingSoonPage title="Paramètres" />} />
       </Route>

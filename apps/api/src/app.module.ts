@@ -6,8 +6,20 @@ import { QuotesModule } from "./quotes/quotes.module";
 import { InvoicesModule } from "./invoices/invoices.module";
 import { CreditNotesModule } from "./credit-notes/credit-notes.module";
 import { RemindersModule } from "./reminders/reminders.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
+import { ReportsModule } from "./reports/reports.module";
 
 @Module({
-  imports: [PrismaModule, ClientsModule, ProductsModule, QuotesModule, InvoicesModule, CreditNotesModule, RemindersModule],
+  imports: [
+    PrismaModule,
+    ClientsModule,
+    ProductsModule,
+    QuotesModule,
+    InvoicesModule,
+    CreditNotesModule,
+    RemindersModule,
+    DashboardModule,
+    ReportsModule,
+  ],
 })
 export class AppModule {}

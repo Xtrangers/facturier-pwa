@@ -61,31 +61,70 @@ export class RemindersService {
       include: { client: true, reminders: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 
-    const invoiceItems = invoices.map((invoice) => ({
-      target: "INVOICE" as const,
-      id: invoice.id,
-      documentNumber: invoice.invoiceNumber ?? "Brouillon",
-      clientName: invoice.client.name,
-      clientId: invoice.clientId,
-      amountCents: invoice.amountDueCents,
-      date: toIsoDate(invoice.dueDate),
-      days: daysBetween(toIsoDate(invoice.dueDate)),
-      lastLevel: invoice.reminders[0]?.level ?? null,
-    }));
+    const invoiceItems = invoices.map((invoice) => {
+      const lastLevel = invoice.reminders[0]?.level ?? null;
+      return {
+        target: "INVOICE" as const,
+        id: invoice.id,
+        documentNumber: invoice.invoiceNumber ?? "Brouillon",
+        clientName: invoice.client.name,
+        clientId: invoice.clientId,
+        amountCents: invoice.amountDueCents,
+        date: toIsoDate(invoice.dueDate),
+        days: daysBetween(toIsoDate(invoice.dueDate)),
+        lastLevel,
+        nextLevel: (lastLevel ? Math.min(lastLevel + 1, 3) : 1) as 1 | 2 | 3,
+      };
+    });
 
-    const quoteItems = quotes.map((quote) => ({
-      target: "QUOTE" as const,
-      id: quote.id,
-      documentNumber: quote.quoteNumber,
-      clientName: quote.client.name,
-      clientId: quote.clientId,
-      amountCents: quote.totalTtcCents,
-      date: toIsoDate(quote.validUntil),
-      days: daysBetween(toIsoDate(quote.validUntil)),
-      lastLevel: quote.reminders[0]?.level ?? null,
-    }));
+    const quoteItems = quotes.map((quote) => {
+      const lastLevel = quote.reminders[0]?.level ?? null;
+      return {
+        target: "QUOTE" as const,
+        id: quote.id,
+        documentNumber: quote.quoteNumber,
+        clientName: quote.client.name,
+        clientId: quote.clientId,
+        amountCents: quote.totalTtcCents,
+        date: toIsoDate(quote.validUntil),
+        days: daysBetween(toIsoDate(quote.validUntil)),
+        lastLevel,
+        nextLevel: (lastLevel ? Math.min(lastLevel + 1, 3) : 1) as 1 | 2 | 3,
+      };
+    });
 
     return [...invoiceItems, ...quoteItems].sort((a, b) => b.days - a.days);
+  }
+
+  async summary() {
+    const queue = await this.queue();
+    const overdue = queue.filter((item) => item.target === "INVOICE");
+    const quotes = queue.filter((item) => item.target === "QUOTE");
+    return {
+      overdueCount: overdue.length,
+      overdueCents: overdue.reduce((sum, item) => sum + item.amountCents, 0),
+      quotesSoonCount: quotes.length,
+      quotesSoonCents: quotes.reduce((sum, item) => sum + item.amountCents, 0),
+    };
+  }
+
+  async exportQueueCsv() {
+    const queue = await this.queue();
+    const header = ["Type", "Numéro", "Client", "Date", "Jours", "Montant EUR", "Dernier niveau"];
+    const lines = queue.map((item) =>
+      [
+        item.target === "INVOICE" ? "Facture" : "Devis",
+        item.documentNumber,
+        item.clientName,
+        item.date,
+        String(item.days),
+        (item.amountCents / 100).toFixed(2).replace(".", ","),
+        item.lastLevel ? String(item.lastLevel) : "",
+      ]
+        .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+        .join(";"),
+    );
+    return `\uFEFF${header.join(";")}\n${lines.join("\n")}\n`;
   }
 
   async list() {
@@ -134,6 +173,15 @@ export class RemindersService {
         notes: dto.notes?.trim() ?? "",
       },
       include: { invoice: { include: { client: true } }, quote: { include: { client: true } } },
+    });
+    await this.prisma.auditLog.create({
+      data: {
+        companyId,
+        entity: "reminder",
+        entityId: reminder.id,
+        action: "create",
+        payload: JSON.stringify({ level: dto.level, target: reminder.target }),
+      },
     });
     return {
       id: reminder.id,
