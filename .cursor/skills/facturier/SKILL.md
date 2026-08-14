@@ -45,9 +45,10 @@ Livré / reste : [STATUS.md](../../../STATUS.md)
 4. Factures + numérotation + paiements sur fiche + avoirs + relances — **livré**
 5. Tableau de bord + rapports — **livré**
 6. Paiements (liste globale) + archive documents — **livré**
-7. Export PDF — **prochaine étape**
-8. Paramètres entreprise, e-mail
-9. Auth / multi-utilisateurs, PostgreSQL prod
+7. Paramètres entreprise — **livré**
+8. Export PDF — **prochaine étape**
+9. E-mail
+10. Auth / multi-utilisateurs, PostgreSQL prod
 
 Ne pas implémenter une phase suivante tant que la phase courante n’est pas utilisable (CRUD + UI responsive + API). Le PDF est la phase courante.
 

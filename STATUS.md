@@ -81,6 +81,12 @@ Dev : `npm run dev` — API http://localhost:3001/api/v1 — Web http://localhos
 - Compteurs cliquables + total TTC de la liste
 - Pas encore de PDF : lien vers la fiche du document
 
+### Paramètres `/parametres`
+
+- Fiche entreprise : identité, adresse, SIRET, TVA, IBAN, BIC, logo (URL)
+- Délai de paiement, TVA par défaut, couleur PDF, mentions légales, CGV
+- Préfixes éditables ; prochains n° en lecture seule (pas de trou à l’émission)
+
 ### Seed
 
 - 8 clients, 8 articles, devis d’exemple
@@ -93,9 +99,7 @@ Dev : `npm run dev` — API http://localhost:3001/api/v1 — Web http://localhos
 
 ## Écrans encore « Bientôt disponible »
 
-| Route | Module |
-|-------|--------|
-| `/parametres` | Profil entreprise, mentions, numérotation |
+Aucun. Tous les écrans de navigation sont bâtis.
 
 ---
 
@@ -110,25 +114,20 @@ Ordre recommandé. Ne pas sauter le PDF : c’est la prochaine brique métier.
 - [ ] Notes internes exclues du PDF
 - [ ] Télécharger / imprimer ; stocker `pdfUrl`
 - [ ] Modèles `Document` / `DocumentTemplate` si besoin
+- [ ] Logo entreprise depuis les paramètres
 
-### 2. Paramètres entreprise
-
-- [ ] Fiche société (adresse, SIRET, TVA, IBAN, BIC, logo)
-- [ ] Préfixes et prochain n° (lecture, pas de trou à l’émission)
-- [ ] Délai de paiement par défaut, mentions, CGV, couleur PDF
-
-### 3. E-mail
+### 2. E-mail
 
 - [ ] Envoi devis / facture / relance (PDF en pièce jointe)
 - [ ] Journal d’envoi (pas seulement le statut `SENT`)
 
-### 4. Auth et multi-utilisateurs
+### 3. Auth et multi-utilisateurs
 
 - [ ] Login, rôles `ADMIN` / `EMPLOYEE` / `ACCOUNTANT`
 - [ ] Plus de `companyId` hardcodé côté API
 - [ ] PostgreSQL prod (même schéma Prisma)
 
-### 5. Conformité et produit (plus tard)
+### 4. Conformité et produit (plus tard)
 
 - [ ] Purge RGPD / export complet des données
 - [ ] Écran journal d’audit

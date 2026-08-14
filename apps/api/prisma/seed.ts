@@ -4,6 +4,11 @@ import type { DiscountKind } from "@facturier/shared";
 
 const prisma = new PrismaClient();
 
+const LEGAL_MENTIONS =
+  "En cas de retard de paiement, seront exigibles, conformément à l’article L. 441-10 du code de commerce, une indemnité calculée sur la base de trois fois le taux d’intérêt légal en vigueur ainsi qu’une indemnité forfaitaire pour frais de recouvrement de 40 €. Escompte pour paiement anticipé : néant.";
+const TERMS =
+  "Devis valable 30 jours. Matériel restant la propriété d’Atelier Nord Lumière jusqu’au paiement intégral.";
+
 const PRODUCT_CATEGORIES = ["Éclairage", "Consommables", "Prestations"] as const;
 
 const PRODUCTS = [
@@ -746,6 +751,10 @@ async function main() {
     await seedQuotes(existing.id);
     await seedBilling(existing.id);
     await ensureConvertibleQuote(existing.id);
+    await prisma.companySettings.updateMany({
+      where: { companyId: existing.id, legalMentions: "" },
+      data: { legalMentions: LEGAL_MENTIONS, termsAndConditions: TERMS },
+    });
     return;
   }
 
@@ -768,6 +777,8 @@ async function main() {
           nextClientSeq: 9,
           nextProductSeq: 9,
           nextQuoteSeq: 4,
+          legalMentions: LEGAL_MENTIONS,
+          termsAndConditions: TERMS,
         },
       },
     },

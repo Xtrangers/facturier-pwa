@@ -5,7 +5,7 @@ description: Guides quotes, invoices, credit notes, payments, numbering, and PDF
 
 # Facturier — documents (devis, factures, avoirs)
 
-Clients, devis, factures, avoirs, paiements, relances, archive documents sont **livrés**. Phase courante : **PDF**. Détail : [STATUS.md](../../../STATUS.md).
+Clients, devis, factures, avoirs, paiements, relances, archive documents, paramètres entreprise sont **livrés**. Phase courante : **PDF**. Détail : [STATUS.md](../../../STATUS.md).
 
 ## Pipeline
 
@@ -38,7 +38,7 @@ Paiements : partiels autorisés ; `amountDue = totalTtc - amountPaid` (avoirs d�
 
 ## PDF
 
-**Phase courante.** Templates HTML/CSS + Puppeteer. Logo entreprise, couleurs, CGV, IBAN, mentions légales. Notes internes **exclues**.
+**Phase courante.** Templates HTML/CSS + Puppeteer. Logo, couleur, CGV, IBAN, mentions légales lus depuis `/parametres`. Notes internes **exclues**.
 
 Actions : télécharger, imprimer, envoyer e-mail, archiver `pdfUrl`.
 

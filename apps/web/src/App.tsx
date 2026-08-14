@@ -3,7 +3,6 @@ import { AppShell } from "./components/AppShell";
 import { ClientsPage } from "./pages/ClientsPage";
 import { ClientDetailPage } from "./pages/ClientDetailPage";
 import { ClientFormPage } from "./pages/ClientFormPage";
-import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { QuotesPage } from "./pages/QuotesPage";
 import { QuoteDetailPage } from "./pages/QuoteDetailPage";
 import { QuoteFormPage } from "./pages/QuoteFormPage";
@@ -21,6 +20,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { PaymentsPage } from "./pages/PaymentsPage";
 import { DocumentsPage } from "./pages/DocumentsPage";
+import { SettingsPage } from "./pages/SettingsPage";
 
 export default function App() {
   return (
@@ -51,7 +51,7 @@ export default function App() {
         <Route path="relances" element={<RemindersPage />} />
         <Route path="rapports" element={<ReportsPage />} />
         <Route path="documents" element={<DocumentsPage />} />
-        <Route path="parametres" element={<ComingSoonPage title="Paramètres" />} />
+        <Route path="parametres" element={<SettingsPage />} />
       </Route>
     </Routes>
   );

@@ -11,3 +11,4 @@ export * from "./dashboard";
 export * from "./report";
 export * from "./money";
 export * from "./document";
+export * from "./settings";

@@ -24,6 +24,8 @@ import type {
   ReminderQueueItem,
   ReminderSummary,
   Report,
+  CompanyProfile,
+  CompanyProfilePayload,
 } from "@facturier/shared";
 
 const base = "/api/v1";
@@ -276,5 +278,11 @@ export const api = {
       if (!res.ok) throw new Error("Export impossible");
       return res.blob();
     });
+  },
+  getSettings() {
+    return request<CompanyProfile>("/settings");
+  },
+  updateSettings(payload: CompanyProfilePayload) {
+    return request<CompanyProfile>("/settings", { method: "PATCH", body: JSON.stringify(payload) });
   },
 };
