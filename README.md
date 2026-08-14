@@ -30,13 +30,13 @@ npm run dev
 
 ## Modules livrés
 
-Clients, tarifs, devis, factures (paiements sur la fiche), avoirs, relances, tableau de bord, rapports.
+Clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents.
 
 ## Prochaine étape
 
 Export PDF (Puppeteer + mentions légales FR).
 
-Encore en « Bientôt disponible » : liste paiements, archive documents, paramètres.
+Encore en « Bientôt disponible » : paramètres.
 
 ## Skills agent
 

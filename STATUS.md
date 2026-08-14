@@ -69,6 +69,18 @@ Dev : `npm run dev` — API http://localhost:3001/api/v1 — Web http://localhos
 - Détail TVA par taux, ventilation mensuelle, liste des impayés
 - Export CSV
 
+### Paiements `/paiements`
+
+- Liste globale, période (tout / mois / année), dates, moyen, cartes mobile, export CSV
+- Saisie d’un encaissement (factures ouvertes, montant, moyen, référence, note)
+- Lien depuis une facture : préremplit la facture (`?facture=`)
+
+### Documents `/documents`
+
+- Archive unifiée devis / factures / avoirs, recherche, type, dates, export CSV
+- Compteurs cliquables + total TTC de la liste
+- Pas encore de PDF : lien vers la fiche du document
+
 ### Seed
 
 - 8 clients, 8 articles, devis d’exemple
@@ -83,8 +95,6 @@ Dev : `npm run dev` — API http://localhost:3001/api/v1 — Web http://localhos
 
 | Route | Module |
 |-------|--------|
-| `/paiements` | Liste globale des paiements (saisie déjà sur la facture) |
-| `/documents` | Archive PDF |
 | `/parametres` | Profil entreprise, mentions, numérotation |
 
 ---
@@ -107,22 +117,18 @@ Ordre recommandé. Ne pas sauter le PDF : c’est la prochaine brique métier.
 - [ ] Préfixes et prochain n° (lecture, pas de trou à l’émission)
 - [ ] Délai de paiement par défaut, mentions, CGV, couleur PDF
 
-### 3. Paiements (vue globale)
-
-- [ ] Liste `/paiements` (filtre facture, client, période, moyen)
-
-### 4. E-mail
+### 3. E-mail
 
 - [ ] Envoi devis / facture / relance (PDF en pièce jointe)
 - [ ] Journal d’envoi (pas seulement le statut `SENT`)
 
-### 5. Auth et multi-utilisateurs
+### 4. Auth et multi-utilisateurs
 
 - [ ] Login, rôles `ADMIN` / `EMPLOYEE` / `ACCOUNTANT`
 - [ ] Plus de `companyId` hardcodé côté API
 - [ ] PostgreSQL prod (même schéma Prisma)
 
-### 6. Conformité et produit (plus tard)
+### 5. Conformité et produit (plus tard)
 
 - [ ] Purge RGPD / export complet des données
 - [ ] Écran journal d’audit

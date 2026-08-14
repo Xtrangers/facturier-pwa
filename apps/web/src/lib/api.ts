@@ -1,4 +1,6 @@
 import type {
+  ArchiveDocumentKind,
+  ArchiveList,
   Client,
   ClientPayload,
   CreditNote,
@@ -6,8 +8,10 @@ import type {
   Dashboard,
   Invoice,
   InvoicePayload,
+  OpenInvoice,
   Paginated,
   Payment,
+  PaymentList,
   PaymentPayload,
   Product,
   ProductCategory,
@@ -168,6 +172,56 @@ export const api = {
   },
   addInvoicePayment(id: string, payload: PaymentPayload) {
     return request<Invoice>(`/invoices/${id}/payments`, { method: "POST", body: JSON.stringify(payload) });
+  },
+  listPayments(params: { q?: string; method?: string; clientId?: string; from?: string; to?: string }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.method) qs.set("method", params.method);
+    if (params.clientId) qs.set("clientId", params.clientId);
+    if (params.from) qs.set("from", params.from);
+    if (params.to) qs.set("to", params.to);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<PaymentList>(`/payments${suffix}`);
+  },
+  listOpenInvoices() {
+    return request<OpenInvoice[]>("/payments/open-invoices");
+  },
+  recordPayment(payload: PaymentPayload & { invoiceId: string }) {
+    return request<Invoice>("/payments", { method: "POST", body: JSON.stringify(payload) });
+  },
+  exportPaymentsCsv(params: { q?: string; method?: string; clientId?: string; from?: string; to?: string }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.method) qs.set("method", params.method);
+    if (params.clientId) qs.set("clientId", params.clientId);
+    if (params.from) qs.set("from", params.from);
+    if (params.to) qs.set("to", params.to);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return fetch(`${base}/payments/export${suffix}`).then(async (res) => {
+      if (!res.ok) throw new Error("Export impossible");
+      return res.blob();
+    });
+  },
+  listDocuments(params: { q?: string; kind?: ArchiveDocumentKind; from?: string; to?: string }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.kind) qs.set("kind", params.kind);
+    if (params.from) qs.set("from", params.from);
+    if (params.to) qs.set("to", params.to);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<ArchiveList>(`/documents${suffix}`);
+  },
+  exportDocumentsCsv(params: { q?: string; kind?: ArchiveDocumentKind; from?: string; to?: string }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.kind) qs.set("kind", params.kind);
+    if (params.from) qs.set("from", params.from);
+    if (params.to) qs.set("to", params.to);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return fetch(`${base}/documents/export${suffix}`).then(async (res) => {
+      if (!res.ok) throw new Error("Export impossible");
+      return res.blob();
+    });
   },
   listCreditNotes(params: { q?: string; invoiceId?: string }) {
     const qs = new URLSearchParams();

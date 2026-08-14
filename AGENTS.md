@@ -33,5 +33,5 @@ npm run dev
 API : http://localhost:3001  
 Web : http://localhost:5173
 
-Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports.  
-Pas encore : PDF, e-mail, auth, liste paiements, paramètres.
+Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents.  
+Pas encore : PDF, e-mail, auth, paramètres.

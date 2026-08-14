@@ -231,7 +231,12 @@ export class InvoicesService {
   }
 
   async listPayments(id: string) {
-    await this.get(id);
+    const companyId = await this.companyId();
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, companyId, deletedAt: null },
+      include: { client: true },
+    });
+    if (!invoice) throw new NotFoundException("Facture introuvable");
     const payments = await this.prisma.payment.findMany({
       where: { invoiceId: id },
       orderBy: { paidAt: "desc" },
@@ -239,6 +244,9 @@ export class InvoicesService {
     return payments.map((payment) => ({
       id: payment.id,
       invoiceId: payment.invoiceId,
+      invoiceNumber: invoice.invoiceNumber,
+      clientId: invoice.clientId,
+      clientName: invoice.client.name,
       amountCents: payment.amountCents,
       method: payment.method,
       paidAt: toIsoDate(payment.paidAt),

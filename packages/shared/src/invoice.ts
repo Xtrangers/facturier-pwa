@@ -67,6 +67,9 @@ export type InvoicePayload = {
 export type Payment = {
   id: string;
   invoiceId: string;
+  invoiceNumber: string | null;
+  clientId: string;
+  clientName: string;
   amountCents: number;
   method: string;
   paidAt: string;
@@ -76,9 +79,24 @@ export type Payment = {
 };
 
 export type PaymentPayload = {
+  invoiceId?: string;
   amountCents: number;
   method: string;
   paidAt?: string;
   reference?: string;
   notes?: string;
+};
+
+export type PaymentList = {
+  items: Payment[];
+  total: number;
+  totalCents: number;
+};
+
+export type OpenInvoice = {
+  id: string;
+  invoiceNumber: string | null;
+  clientName: string;
+  amountDueCents: number;
+  dueDate: string;
 };

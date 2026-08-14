@@ -5,7 +5,7 @@ description: Guides quotes, invoices, credit notes, payments, numbering, and PDF
 
 # Facturier — documents (devis, factures, avoirs)
 
-Clients, devis, factures, avoirs, paiements sur fiche et relances sont **livrés**. Phase courante : **PDF**. Détail : [STATUS.md](../../../STATUS.md).
+Clients, devis, factures, avoirs, paiements, relances, archive documents sont **livrés**. Phase courante : **PDF**. Détail : [STATUS.md](../../../STATUS.md).
 
 ## Pipeline
 
@@ -34,7 +34,7 @@ Sources : devis accepté, duplication, saisie manuelle.
 
 Brouillon éditable. Une fois `ISSUED`, champs financiers gelés ; corrections par avoir.
 
-Paiements : partiels autorisés ; `amountDue = totalTtc - amountPaid` (avoirs déduits).
+Paiements : partiels autorisés ; `amountDue = totalTtc - amountPaid` (avoirs déduits). Liste globale `/paiements` (période, moyen, CSV) + saisie sur la fiche facture.
 
 ## PDF
 

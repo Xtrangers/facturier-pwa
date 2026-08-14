@@ -170,7 +170,12 @@ export function InvoiceDetailPage() {
 
           {invoice.status !== "DRAFT" ? (
             <div className="rounded-2xl border border-stone-200 bg-white p-5">
-              <h2 className="font-serif text-lg">Paiements</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-lg">Paiements</h2>
+                <Link to={`/paiements?facture=${invoice.id}`} className="text-sm font-medium text-teal-800 hover:underline">
+                  Tous les paiements
+                </Link>
+              </div>
               {invoice.amountDueCents > 0 ? (
                 <form onSubmit={onPay} className="mt-4 grid gap-3 sm:grid-cols-4">
                   <input className="h-11 rounded-xl border border-stone-200 px-3 text-sm" value={amount} onChange={(e) => setAmount(e.target.value)} aria-label="Montant" />

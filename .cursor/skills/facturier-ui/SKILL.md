@@ -19,8 +19,8 @@ Layout unique `AppShell` :
 
 - Header : titre de page, recherche globale (plus tard), menu utilisateur
 - Nav : Tableau de bord, Clients, Tarifs, Devis, Factures, Avoirs, Paiements, Relances, Rapports, Documents, Paramètres
-- Livré : Clients, Tarifs, Devis, Factures, Avoirs, Relances, Tableau de bord, Rapports
-- Pages non encore bâties : lien visible, écran « Bientôt disponible » (paiements, documents, paramètres)
+- Livré : Clients, Tarifs, Devis, Factures, Avoirs, Relances, Tableau de bord, Rapports, Paiements, Documents
+- Pages non encore bâties : lien visible, écran « Bientôt disponible » (paramètres)
 
 Nav mobile : barre inférieure avec 5 items (Accueil, Clients, Devis, Factures, Plus).
 

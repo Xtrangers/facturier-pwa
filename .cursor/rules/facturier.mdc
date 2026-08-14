@@ -18,4 +18,4 @@ Avant d’implémenter un module, lire le skill correspondant dans `.cursor/skil
 
 UI en français. Montants en centimes en base. Filtrer par `companyId`. Ne pas supprimer une facture émise.
 
-Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports. **Prochaine étape : PDF.** Voir `STATUS.md`.
+Livré : clients, tarifs, devis, factures, avoirs, relances, tableau de bord, rapports, paiements, documents. **Prochaine étape : PDF.** Voir `STATUS.md`.

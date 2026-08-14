@@ -19,6 +19,8 @@ import { CreditNoteFormPage } from "./pages/CreditNoteFormPage";
 import { RemindersPage } from "./pages/RemindersPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ReportsPage } from "./pages/ReportsPage";
+import { PaymentsPage } from "./pages/PaymentsPage";
+import { DocumentsPage } from "./pages/DocumentsPage";
 
 export default function App() {
   return (
@@ -45,10 +47,10 @@ export default function App() {
         <Route path="avoirs" element={<CreditNotesPage />} />
         <Route path="avoirs/nouveau" element={<CreditNoteFormPage />} />
         <Route path="avoirs/:id" element={<CreditNoteDetailPage />} />
-        <Route path="paiements" element={<ComingSoonPage title="Paiements" />} />
+        <Route path="paiements" element={<PaymentsPage />} />
         <Route path="relances" element={<RemindersPage />} />
         <Route path="rapports" element={<ReportsPage />} />
-        <Route path="documents" element={<ComingSoonPage title="Documents" />} />
+        <Route path="documents" element={<DocumentsPage />} />
         <Route path="parametres" element={<ComingSoonPage title="Paramètres" />} />
       </Route>
     </Routes>
