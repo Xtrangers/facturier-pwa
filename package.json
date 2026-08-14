@@ -1,0 +1,19 @@
+{
+  "name": "facturier",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c teal,cyan \"npm run dev -w @facturier/api\" \"npm run dev -w @facturier/web\"",
+    "dev:web": "npm run dev -w @facturier/web",
+    "dev:api": "npm run dev -w @facturier/api",
+    "db:migrate": "npm run prisma:migrate -w @facturier/api",
+    "db:seed": "npm run prisma:seed -w @facturier/api",
+    "db:reset": "npm run prisma:reset -w @facturier/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,30 @@
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AppShell } from "./components/AppShell";
+import { ClientsPage } from "./pages/ClientsPage";
+import { ClientDetailPage } from "./pages/ClientDetailPage";
+import { ClientFormPage } from "./pages/ClientFormPage";
+import { ComingSoonPage } from "./pages/ComingSoonPage";
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route index element={<Navigate to="/clients" replace />} />
+        <Route path="tableau-de-bord" element={<ComingSoonPage title="Tableau de bord" />} />
+        <Route path="clients" element={<ClientsPage />} />
+        <Route path="clients/nouveau" element={<ClientFormPage />} />
+        <Route path="clients/:id" element={<ClientDetailPage />} />
+        <Route path="clients/:id/modifier" element={<ClientFormPage />} />
+        <Route path="tarifs" element={<ComingSoonPage title="Tarifs et matériels" />} />
+        <Route path="devis" element={<ComingSoonPage title="Devis" />} />
+        <Route path="factures" element={<ComingSoonPage title="Factures" />} />
+        <Route path="avoirs" element={<ComingSoonPage title="Avoirs" />} />
+        <Route path="paiements" element={<ComingSoonPage title="Paiements" />} />
+        <Route path="relances" element={<ComingSoonPage title="Relances" />} />
+        <Route path="rapports" element={<ComingSoonPage title="Rapports" />} />
+        <Route path="documents" element={<ComingSoonPage title="Documents" />} />
+        <Route path="parametres" element={<ComingSoonPage title="Paramètres" />} />
+      </Route>
+    </Routes>
+  );
+}

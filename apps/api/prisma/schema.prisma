@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id           String   @id @default(cuid())
+  name         String
+  logoUrl      String?
+  addressLine1 String   @default("")
+  addressLine2 String   @default("")
+  postalCode   String   @default("")
+  city         String   @default("")
+  country      String   @default("FR")
+  phone        String   @default("")
+  email        String   @default("")
+  siret        String   @default("")
+  vatNumber    String   @default("")
+  paymentTerms String   @default("Paiement à 30 jours")
+  iban         String   @default("")
+  bic          String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  settings  CompanySettings?
+  clients   Client[]
+  auditLogs AuditLog[]
+}
+
+model CompanySettings {
+  id                 String  @id @default(cuid())
+  companyId          String  @unique
+  company            Company @relation(fields: [companyId], references: [id])
+  clientPrefix       String  @default("C")
+  quotePrefix        String  @default("D")
+  invoicePrefix      String  @default("F")
+  creditPrefix       String  @default("A")
+  nextClientSeq      Int     @default(1)
+  nextQuoteSeq       Int     @default(1)
+  nextInvoiceSeq     Int     @default(1)
+  nextCreditSeq      Int     @default(1)
+  defaultTaxRateBps  Int     @default(2000)
+  defaultDueDays     Int     @default(30)
+  pdfPrimaryColor    String  @default("#0F766E")
+  legalMentions      String  @default("")
+  termsAndConditions String  @default("")
+}
+
+model Client {
+  id                    String    @id @default(cuid())
+  companyId             String
+  company               Company   @relation(fields: [companyId], references: [id])
+  clientNumber          String
+  name                  String
+  type                  String
+  status                String
+  billingLine1          String
+  billingLine2          String    @default("")
+  billingPostalCode     String
+  billingCity           String
+  billingCountry        String    @default("FR")
+  shippingSameAsBilling Boolean   @default(true)
+  shippingLine1         String    @default("")
+  shippingLine2         String    @default("")
+  shippingPostalCode    String    @default("")
+  shippingCity          String    @default("")
+  shippingCountry       String    @default("FR")
+  phone                 String    @default("")
+  email                 String    @default("")
+  siret                 String    @default("")
+  vatNumber             String    @default("")
+  notes                 String    @default("")
+  balanceCents          Int       @default(0)
+  deletedAt             DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  contacts              ClientContact[]
+
+  @@unique([companyId, clientNumber])
+  @@index([companyId, status])
+  @@index([companyId, name])
+}
+
+model ClientContact {
+  id        String  @id @default(cuid())
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  firstName String
+  lastName  String
+  role      String  @default("")
+  email     String  @default("")
+  phone     String  @default("")
+  isPrimary Boolean @default(false)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  entity    String
+  entityId  String
+  action    String
+  payload   String   @default("{}")
+  createdAt DateTime @default(now())
+}

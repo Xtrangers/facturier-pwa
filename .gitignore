@@ -1,0 +1,15 @@
+node_modules
+dist
+build
+.dev
+*.db
+*.db-journal
+.env
+.env.local
+.DS_Store
+Thumbs.db
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+*.log
+.vite
+.turbo

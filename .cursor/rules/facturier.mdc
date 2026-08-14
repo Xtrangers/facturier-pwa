@@ -1,0 +1,19 @@
+---
+description: Conventions permanentes du projet Facturier
+alwaysApply: true
+---
+
+# Facturier
+
+PWA de facturation France. Stack : React + TypeScript + Tailwind (apps/web), NestJS + Prisma (apps/api), types dans packages/shared.
+
+Avant d’implémenter un module, lire le skill correspondant dans `.cursor/skills/` :
+
+- `facturier` — architecture
+- `facturier-domain` — modèle
+- `facturier-ui` — interface
+- `facturier-legal-fr` — conformité
+- `facturier-clients` — clients
+- `facturier-documents` — devis / factures / PDF
+
+UI en français. Montants en centimes en base. Filtrer par `companyId`. Ne pas supprimer une facture émise. Respecter l’ordre MVP : clients d’abord.
