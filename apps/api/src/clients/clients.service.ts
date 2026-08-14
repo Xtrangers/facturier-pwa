@@ -232,8 +232,11 @@ export class ClientsService {
     const quoteCount = await this.prisma.quote.count({
       where: { clientId: id, deletedAt: null },
     });
-    if (quoteCount > 0) {
-      throw new ConflictException("Des devis sont liés à ce client.");
+    const invoiceCount = await this.prisma.invoice.count({
+      where: { clientId: id, deletedAt: null },
+    });
+    if (quoteCount > 0 || invoiceCount > 0) {
+      throw new ConflictException("Des devis ou factures sont liés à ce client.");
     }
     await this.prisma.client.update({
       where: { id },

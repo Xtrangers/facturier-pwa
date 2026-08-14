@@ -1,11 +1,11 @@
 import { CLIENT_TYPE_LABEL, formatDateFr, formatEur } from "@facturier/shared";
-import type { Client, Quote } from "@facturier/shared";
+import type { Client, Invoice, Quote } from "@facturier/shared";
 import { ArrowLeft, Copy, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { EmptyState } from "../components/EmptyState";
-import { StatusBadge, QuoteStatusBadge } from "../components/StatusBadge";
+import { StatusBadge, QuoteStatusBadge, InvoiceStatusBadge } from "../components/StatusBadge";
 import { api } from "../lib/api";
 
 function Field({ label, value }: { label: string; value?: string }) {
@@ -22,6 +22,7 @@ export function ClientDetailPage() {
   const navigate = useNavigate();
   const [client, setClient] = useState<Client | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
 
@@ -34,10 +35,19 @@ export function ClientDetailPage() {
         if (cancelled) return;
         setClient(data);
         try {
-          const listed = await api.listQuotes({ clientId: data.id });
-          if (!cancelled) setQuotes(listed.items);
+          const [listedQuotes, listedInvoices] = await Promise.all([
+            api.listQuotes({ clientId: data.id }),
+            api.listInvoices({ clientId: data.id }),
+          ]);
+          if (!cancelled) {
+            setQuotes(listedQuotes.items);
+            setInvoices(listedInvoices.items);
+          }
         } catch {
-          if (!cancelled) setQuotes([]);
+          if (!cancelled) {
+            setQuotes([]);
+            setInvoices([]);
+          }
         }
       })
       .catch(() => {
@@ -152,10 +162,24 @@ export function ClientDetailPage() {
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="font-serif text-lg">Devis et factures</h2>
             <div className="mt-3">
-              {quotes.length === 0 ? (
+              {quotes.length === 0 && invoices.length === 0 ? (
                 <EmptyState title="Aucun document" description="L’historique apparaîtra dès la création des premiers devis et factures." />
               ) : (
                 <ul className="space-y-2">
+                  {invoices.map((invoice) => (
+                    <li key={invoice.id}>
+                      <Link to={`/factures/${invoice.id}`} className="flex items-center justify-between rounded-xl border border-stone-100 px-3 py-2 hover:bg-stone-50">
+                        <div>
+                          <p className="text-sm font-semibold text-stone-900">{invoice.invoiceNumber ?? "Brouillon"}</p>
+                          <p className="text-xs text-stone-500">{formatDateFr(invoice.issueDate)}</p>
+                        </div>
+                        <div className="text-right">
+                          <InvoiceStatusBadge status={invoice.status} />
+                          <p className="mt-1 text-xs font-medium text-stone-700">{formatEur(invoice.amountDueCents)} dû</p>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
                   {quotes.map((quote) => (
                     <li key={quote.id}>
                       <Link to={`/devis/${quote.id}`} className="flex items-center justify-between rounded-xl border border-stone-100 px-3 py-2 hover:bg-stone-50">

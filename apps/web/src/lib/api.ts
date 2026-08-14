@@ -1,13 +1,22 @@
 import type {
   Client,
   ClientPayload,
+  CreditNote,
+  CreditNotePayload,
+  Invoice,
+  InvoicePayload,
   Paginated,
+  Payment,
+  PaymentPayload,
   Product,
   ProductCategory,
   ProductPayload,
   Quote,
   QuotePayload,
   QuoteStatus,
+  Reminder,
+  ReminderPayload,
+  ReminderQueueItem,
 } from "@facturier/shared";
 
 const base = "/api/v1";
@@ -117,5 +126,69 @@ export const api = {
   },
   changeQuoteStatus(id: string, status: QuoteStatus) {
     return request<Quote>(`/quotes/${id}/status`, { method: "POST", body: JSON.stringify({ status }) });
+  },
+  createInvoiceFromQuote(quoteId: string) {
+    return request<Invoice>(`/invoices/from-quote/${quoteId}`, { method: "POST" });
+  },
+  listInvoices(params: { q?: string; status?: string; clientId?: string; pageSize?: number }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.status) qs.set("status", params.status);
+    if (params.clientId) qs.set("clientId", params.clientId);
+    if (params.pageSize) qs.set("pageSize", String(params.pageSize));
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<Paginated<Invoice>>(`/invoices${suffix}`);
+  },
+  getInvoice(id: string) {
+    return request<Invoice>(`/invoices/${id}`);
+  },
+  createInvoice(payload: InvoicePayload) {
+    return request<Invoice>("/invoices", { method: "POST", body: JSON.stringify(payload) });
+  },
+  updateInvoice(id: string, payload: InvoicePayload) {
+    return request<Invoice>(`/invoices/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
+  },
+  deleteInvoice(id: string) {
+    return request<{ ok: boolean }>(`/invoices/${id}`, { method: "DELETE" });
+  },
+  duplicateInvoice(id: string) {
+    return request<Invoice>(`/invoices/${id}/duplicate`, { method: "POST" });
+  },
+  issueInvoice(id: string) {
+    return request<Invoice>(`/invoices/${id}/issue`, { method: "POST" });
+  },
+  changeInvoiceStatus(id: string, status: "SENT" | "OVERDUE") {
+    return request<Invoice>(`/invoices/${id}/status`, { method: "POST", body: JSON.stringify({ status }) });
+  },
+  listInvoicePayments(id: string) {
+    return request<Payment[]>(`/invoices/${id}/payments`);
+  },
+  addInvoicePayment(id: string, payload: PaymentPayload) {
+    return request<Invoice>(`/invoices/${id}/payments`, { method: "POST", body: JSON.stringify(payload) });
+  },
+  listCreditNotes(params: { q?: string; invoiceId?: string }) {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.invoiceId) qs.set("invoiceId", params.invoiceId);
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<Paginated<CreditNote>>(`/credit-notes${suffix}`);
+  },
+  getCreditNote(id: string) {
+    return request<CreditNote>(`/credit-notes/${id}`);
+  },
+  createCreditNote(payload: CreditNotePayload) {
+    return request<CreditNote>("/credit-notes", { method: "POST", body: JSON.stringify(payload) });
+  },
+  issueCreditNote(id: string) {
+    return request<CreditNote>(`/credit-notes/${id}/issue`, { method: "POST" });
+  },
+  reminderQueue() {
+    return request<ReminderQueueItem[]>("/reminders/queue");
+  },
+  listReminders() {
+    return request<Reminder[]>("/reminders");
+  },
+  createReminder(payload: ReminderPayload) {
+    return request<Reminder>("/reminders", { method: "POST", body: JSON.stringify(payload) });
   },
 };

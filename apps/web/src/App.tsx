@@ -10,6 +10,13 @@ import { QuoteFormPage } from "./pages/QuoteFormPage";
 import { ProductsPage } from "./pages/ProductsPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { ProductFormPage } from "./pages/ProductFormPage";
+import { InvoicesPage } from "./pages/InvoicesPage";
+import { InvoiceDetailPage } from "./pages/InvoiceDetailPage";
+import { InvoiceFormPage } from "./pages/InvoiceFormPage";
+import { CreditNotesPage } from "./pages/CreditNotesPage";
+import { CreditNoteDetailPage } from "./pages/CreditNoteDetailPage";
+import { CreditNoteFormPage } from "./pages/CreditNoteFormPage";
+import { RemindersPage } from "./pages/RemindersPage";
 
 export default function App() {
   return (
@@ -29,10 +36,15 @@ export default function App() {
         <Route path="devis/nouveau" element={<QuoteFormPage />} />
         <Route path="devis/:id" element={<QuoteDetailPage />} />
         <Route path="devis/:id/modifier" element={<QuoteFormPage />} />
-        <Route path="factures" element={<ComingSoonPage title="Factures" />} />
-        <Route path="avoirs" element={<ComingSoonPage title="Avoirs" />} />
+        <Route path="factures" element={<InvoicesPage />} />
+        <Route path="factures/nouveau" element={<InvoiceFormPage />} />
+        <Route path="factures/:id" element={<InvoiceDetailPage />} />
+        <Route path="factures/:id/modifier" element={<InvoiceFormPage />} />
+        <Route path="avoirs" element={<CreditNotesPage />} />
+        <Route path="avoirs/nouveau" element={<CreditNoteFormPage />} />
+        <Route path="avoirs/:id" element={<CreditNoteDetailPage />} />
         <Route path="paiements" element={<ComingSoonPage title="Paiements" />} />
-        <Route path="relances" element={<ComingSoonPage title="Relances" />} />
+        <Route path="relances" element={<RemindersPage />} />
         <Route path="rapports" element={<ComingSoonPage title="Rapports" />} />
         <Route path="documents" element={<ComingSoonPage title="Documents" />} />
         <Route path="parametres" element={<ComingSoonPage title="Paramètres" />} />

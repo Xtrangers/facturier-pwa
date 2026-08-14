@@ -52,7 +52,7 @@ export class QuotesService {
   }
 
   private map(
-    quote: Prisma.QuoteGetPayload<{ include: { client: true; lines: true } }>,
+    quote: Prisma.QuoteGetPayload<{ include: { client: true; lines: true; invoices: true } }>,
   ) {
     return {
       id: quote.id,
@@ -77,6 +77,7 @@ export class QuotesService {
       totalHtCents: quote.totalHtCents,
       totalTaxCents: quote.totalTaxCents,
       totalTtcCents: quote.totalTtcCents,
+      invoiceId: quote.invoices.find((invoice) => !invoice.deletedAt)?.id ?? null,
       lines: quote.lines
         .slice()
         .sort((a, b) => a.position - b.position)
@@ -158,7 +159,7 @@ export class QuotesService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.quote.findMany({
         where,
-        include: { client: true, lines: true },
+        include: { client: true, lines: true, invoices: true },
         orderBy: { quoteNumber: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -173,7 +174,7 @@ export class QuotesService {
     const companyId = await this.companyId();
     const quote = await this.prisma.quote.findFirst({
       where: { id, companyId, deletedAt: null },
-      include: { client: true, lines: true },
+      include: { client: true, lines: true, invoices: true },
     });
     if (!quote) throw new NotFoundException("Devis introuvable");
     return this.map(quote);
@@ -238,7 +239,7 @@ export class QuotesService {
         totalTtcCents: computed.totalTtcCents,
         lines: { create: this.lineRows(dto.lines, computed) },
       },
-      include: { client: true, lines: true },
+      include: { client: true, lines: true, invoices: true },
     });
     await this.audit(companyId, quote.id, "create", { quoteNumber });
     return this.map(quote);
@@ -298,7 +299,7 @@ export class QuotesService {
         totalTtcCents: computed.totalTtcCents,
         lines: { create: this.lineRows(merged.lines, computed) },
       },
-      include: { client: true, lines: true },
+      include: { client: true, lines: true, invoices: true },
     });
     await this.audit(existing.companyId, id, "update", {});
     return this.map(quote);

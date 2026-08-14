@@ -36,3 +36,32 @@
 - firstName, lastName, role, email, phone, isPrimary
 
 Index : `(companyId, clientNumber)` unique, `(companyId, email)`, `(companyId, name)`, `(companyId, status)`.
+
+## Quote / QuoteLine
+
+- Numéro `D-YYYY-00001`, totaux en centimes, `taxRateBps`
+- Statuts : DRAFT, SENT, PENDING, ACCEPTED, REJECTED, EXPIRED, CONVERTED
+- Lien optionnel vers facture via `Invoice.quoteId`
+
+## Invoice / InvoiceLine
+
+- Numéro `F-YYYY-00001` attribué à l’émission (brouillon : `invoiceNumber` null)
+- Statuts : DRAFT, ISSUED, SENT, PARTIAL, PAID, OVERDUE, CANCELLED, CREDITED
+- `amountPaidCents`, `creditedCents`, `amountDueCents`
+- Une fois émise : plus de modification ni suppression ; correction par avoir
+
+## Payment
+
+- Lié à une facture, `amountCents`, `method`, `paidAt`, `reference`
+- Partiels autorisés, jamais au-delà du restant dû
+
+## CreditNote
+
+- Numéro `A-YYYY-00001` à l’émission, motif obligatoire
+- Kind TOTAL | PARTIAL, jamais supérieur au restant dû
+- Soft-delete des brouillons uniquement
+
+## Reminder
+
+- Cible INVOICE ou QUOTE, niveau 1 / 2 / 3
+- File : factures échues non soldées + devis SENT/PENDING proches de l’expiration

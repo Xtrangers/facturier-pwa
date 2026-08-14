@@ -3,5 +3,8 @@ export * from "./address";
 export * from "./client";
 export * from "./product";
 export * from "./quote";
+export * from "./invoice";
+export * from "./credit-note";
+export * from "./reminder";
 export * from "./money";
 export * from "./document";

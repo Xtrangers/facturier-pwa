@@ -137,8 +137,34 @@ export function QuoteDetailPage() {
       ) : null}
 
       {quote.status === "ACCEPTED" ? (
-        <p className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-900">
-          Devis accepté. La conversion en facture arrivera avec le module Factures.
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-900">
+          <p className="flex-1">Devis accepté. Vous pouvez le transformer en facture brouillon.</p>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                const invoice = await api.createInvoiceFromQuote(quote.id);
+                navigate(`/factures/${invoice.id}/modifier`);
+              } catch {
+                setStatusError("Conversion impossible.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+            className="inline-flex h-11 items-center rounded-xl bg-teal-800 px-4 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            Convertir en facture
+          </button>
+        </div>
+      ) : null}
+      {quote.status === "CONVERTED" && quote.invoiceId ? (
+        <p className="rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Transformé en facture.{" "}
+          <Link to={`/factures/${quote.invoiceId}`} className="font-semibold underline">
+            Ouvrir la facture
+          </Link>
         </p>
       ) : null}
 

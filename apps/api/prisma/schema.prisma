@@ -31,6 +31,10 @@ model Company {
   productCategories ProductCategory[]
   products          Product[]
   quotes            Quote[]
+  invoices          Invoice[]
+  creditNotes       CreditNote[]
+  payments          Payment[]
+  reminders         Reminder[]
   auditLogs         AuditLog[]
 }
 
@@ -84,6 +88,8 @@ model Client {
   updatedAt             DateTime  @updatedAt
   contacts              ClientContact[]
   quotes                Quote[]
+  invoices              Invoice[]
+  creditNotes           CreditNote[]
 
   @@unique([companyId, clientNumber])
   @@index([companyId, status])
@@ -133,6 +139,7 @@ model Product {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   quoteLines         QuoteLine[]
+  invoiceLines       InvoiceLine[]
 
   @@unique([companyId, sku])
   @@index([companyId, status])
@@ -167,6 +174,8 @@ model Quote {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   lines               QuoteLine[]
+  invoices            Invoice[]
+  reminders           Reminder[]
 
   @@unique([companyId, quoteNumber])
   @@index([companyId, status])
@@ -191,6 +200,123 @@ model QuoteLine {
   lineHtCents    Int
   lineTaxCents   Int
   lineTtcCents   Int
+}
+
+model Invoice {
+  id                  String        @id @default(cuid())
+  companyId           String
+  company             Company       @relation(fields: [companyId], references: [id])
+  clientId            String
+  client              Client        @relation(fields: [clientId], references: [id])
+  quoteId             String?
+  quote               Quote?        @relation(fields: [quoteId], references: [id])
+  invoiceNumber       String?
+  status              String        @default("DRAFT")
+  issueDate           DateTime
+  dueDate             DateTime
+  notes               String        @default("")
+  terms               String        @default("")
+  internalNotes       String        @default("")
+  discountKind        String        @default("NONE")
+  discountValue       Int           @default(0)
+  travelFeeCents      Int           @default(0)
+  travelFeeTaxRateBps Int           @default(2000)
+  depositCents        Int           @default(0)
+  linesHtCents        Int           @default(0)
+  discountCents       Int           @default(0)
+  totalHtCents        Int           @default(0)
+  totalTaxCents       Int           @default(0)
+  totalTtcCents       Int           @default(0)
+  amountPaidCents     Int           @default(0)
+  creditedCents       Int           @default(0)
+  amountDueCents      Int           @default(0)
+  deletedAt           DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  lines               InvoiceLine[]
+  payments            Payment[]
+  creditNotes         CreditNote[]
+  reminders           Reminder[]
+
+  @@unique([companyId, invoiceNumber])
+  @@index([companyId, status])
+  @@index([companyId, clientId])
+}
+
+model InvoiceLine {
+  id             String   @id @default(cuid())
+  invoiceId      String
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id])
+  position       Int
+  designation    String
+  description    String   @default("")
+  quantity       Float
+  unit           String
+  unitPriceCents Int
+  discountKind   String   @default("NONE")
+  discountValue  Int      @default(0)
+  taxRateBps     Int      @default(2000)
+  lineHtCents    Int
+  lineTaxCents   Int
+  lineTtcCents   Int
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amountCents Int
+  method      String
+  paidAt      DateTime
+  reference   String   @default("")
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model CreditNote {
+  id             String   @id @default(cuid())
+  companyId      String
+  company        Company  @relation(fields: [companyId], references: [id])
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id])
+  invoiceId      String
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id])
+  creditNumber   String?
+  status         String   @default("DRAFT")
+  kind           String
+  issueDate      DateTime
+  reason         String
+  notes          String   @default("")
+  taxRateBps     Int      @default(2000)
+  totalHtCents   Int
+  totalTaxCents  Int
+  totalTtcCents  Int
+  deletedAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([companyId, creditNumber])
+  @@index([companyId, invoiceId])
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  target    String
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+  quoteId   String?
+  quote     Quote?   @relation(fields: [quoteId], references: [id])
+  level     Int
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([companyId, createdAt])
 }
 
 model AuditLog {

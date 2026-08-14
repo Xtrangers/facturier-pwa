@@ -1,23 +1,9 @@
-import type { DiscountKind, ProductUnit, QuoteStatus } from "./enums";
+import type { DiscountKind, InvoiceStatus, ProductUnit } from "./enums";
+import type { QuoteLine } from "./quote";
 
-export type QuoteLine = {
-  id: string;
-  productId: string | null;
-  position: number;
-  designation: string;
-  description: string;
-  quantity: number;
-  unit: ProductUnit;
-  unitPriceCents: number;
-  discountKind: DiscountKind;
-  discountValue: number;
-  taxRateBps: number;
-  lineHtCents: number;
-  lineTaxCents: number;
-  lineTtcCents: number;
-};
+export type InvoiceLine = QuoteLine;
 
-export type QuoteLinePayload = {
+export type InvoiceLinePayload = {
   productId?: string | null;
   designation: string;
   description?: string;
@@ -29,16 +15,18 @@ export type QuoteLinePayload = {
   taxRateBps: number;
 };
 
-export type Quote = {
+export type Invoice = {
   id: string;
   companyId: string;
   clientId: string;
   clientName: string;
   clientNumber: string;
-  quoteNumber: string;
-  status: QuoteStatus;
+  quoteId: string | null;
+  quoteNumber: string | null;
+  invoiceNumber: string | null;
+  status: InvoiceStatus;
   issueDate: string;
-  validUntil: string;
+  dueDate: string;
   notes: string;
   terms: string;
   internalNotes: string;
@@ -52,16 +40,19 @@ export type Quote = {
   totalHtCents: number;
   totalTaxCents: number;
   totalTtcCents: number;
-  invoiceId: string | null;
-  lines: QuoteLine[];
+  amountPaidCents: number;
+  creditedCents: number;
+  amountDueCents: number;
+  lines: InvoiceLine[];
   createdAt: string;
   updatedAt: string;
 };
 
-export type QuotePayload = {
+export type InvoicePayload = {
   clientId: string;
+  quoteId?: string | null;
   issueDate?: string;
-  validUntil?: string;
+  dueDate?: string;
   notes?: string;
   terms?: string;
   internalNotes?: string;
@@ -70,5 +61,24 @@ export type QuotePayload = {
   travelFeeCents?: number;
   travelFeeTaxRateBps?: number;
   depositCents?: number;
-  lines: QuoteLinePayload[];
+  lines: InvoiceLinePayload[];
+};
+
+export type Payment = {
+  id: string;
+  invoiceId: string;
+  amountCents: number;
+  method: string;
+  paidAt: string;
+  reference: string;
+  notes: string;
+  createdAt: string;
+};
+
+export type PaymentPayload = {
+  amountCents: number;
+  method: string;
+  paidAt?: string;
+  reference?: string;
+  notes?: string;
 };

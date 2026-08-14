@@ -400,12 +400,352 @@ async function seedQuotes(companyId: string) {
   console.log("Seed devis OK — 3 devis");
 }
 
+async function ensureConvertibleQuote(companyId: string) {
+  const convertible = await prisma.quote.findFirst({
+    where: { companyId, deletedAt: null, status: "ACCEPTED", invoices: { none: { deletedAt: null } } },
+  });
+  if (convertible) return;
+
+  const candidates = ["D-2026-00004", "D-2026-00005", "D-2026-00006"];
+  let quoteNumber: string | null = null;
+  for (const candidate of candidates) {
+    const row = await prisma.quote.findFirst({ where: { companyId, quoteNumber: candidate } });
+    if (!row) {
+      quoteNumber = candidate;
+      break;
+    }
+  }
+  if (!quoteNumber) return;
+
+  const client = await prisma.client.findFirst({ where: { companyId, clientNumber: "C-00004" } });
+  const pose = await prisma.product.findFirst({ where: { companyId, sku: "POSE-LUM" } });
+  if (!client || !pose) return;
+
+  const lines = [
+    {
+      quantity: 2,
+      unitPriceCents: pose.salePriceHtCents,
+      discountKind: "NONE" as const,
+      discountValue: 0,
+      taxRateBps: pose.taxRateBps,
+    },
+  ];
+  const computed = computeQuoteTotals({
+    lines,
+    travelFeeCents: 0,
+    travelFeeTaxRateBps: 2000,
+    discountKind: "NONE",
+    discountValue: 0,
+  });
+
+  await prisma.quote.create({
+    data: {
+      companyId,
+      clientId: client.id,
+      quoteNumber,
+      status: "ACCEPTED",
+      issueDate: new Date("2026-08-08T12:00:00.000Z"),
+      validUntil: new Date("2026-09-07T12:00:00.000Z"),
+      notes: "Pose complémentaire — devis accepté, prêt à facturer.",
+      terms: "",
+      discountKind: "NONE",
+      discountValue: 0,
+      linesHtCents: computed.linesHtCents,
+      discountCents: computed.discountCents,
+      totalHtCents: computed.totalHtCents,
+      totalTaxCents: computed.totalTaxCents,
+      totalTtcCents: computed.totalTtcCents,
+      lines: {
+        create: [
+          {
+            productId: pose.id,
+            position: 0,
+            designation: pose.name,
+            description: pose.description,
+            quantity: 2,
+            unit: pose.unit,
+            unitPriceCents: pose.salePriceHtCents,
+            discountKind: "NONE",
+            discountValue: 0,
+            taxRateBps: pose.taxRateBps,
+            lineHtCents: computed.lines[0].lineHtCents,
+            lineTaxCents: computed.lines[0].lineTaxCents,
+            lineTtcCents: computed.lines[0].lineTtcCents,
+          },
+        ],
+      },
+    },
+  });
+
+  const settings = await prisma.companySettings.findUnique({ where: { companyId } });
+  const nextSeq = Number(quoteNumber.slice(-5)) + 1;
+  if (settings && settings.nextQuoteSeq < nextSeq) {
+    await prisma.companySettings.update({ where: { companyId }, data: { nextQuoteSeq: nextSeq } });
+  }
+  console.log(`Seed devis convertible OK — ${quoteNumber}`);
+}
+
+async function seedBilling(companyId: string) {
+  const existingCount = await prisma.invoice.count({ where: { companyId } });
+  if (existingCount > 0) {
+    console.log("Factures déjà présentes, seed facturation ignoré.");
+    return;
+  }
+
+  const client = async (clientNumber: string) => {
+    const row = await prisma.client.findFirst({ where: { companyId, clientNumber } });
+    if (!row) throw new Error(`Client ${clientNumber} manquant`);
+    return row;
+  };
+  const product = async (sku: string) => {
+    const row = await prisma.product.findFirst({ where: { companyId, sku } });
+    if (!row) throw new Error(`Article ${sku} manquant`);
+    return row;
+  };
+
+  const verre = await client("C-00001");
+  const sophie = await client("C-00003");
+  const marc = await client("C-00006");
+  const sus = await product("SUS-LAIT-40");
+  const pose = await product("POSE-LUM");
+  const sophieQuote = await prisma.quote.findFirst({ where: { companyId, quoteNumber: "D-2026-00003" } });
+
+  function totals(lines: { quantity: number; unitPriceCents: number; taxRateBps: number }[], travel = 0) {
+    return computeQuoteTotals({
+      lines: lines.map((line) => ({
+        ...line,
+        discountKind: "NONE" as const,
+        discountValue: 0,
+      })),
+      travelFeeCents: travel,
+      travelFeeTaxRateBps: 2000,
+      discountKind: "NONE",
+      discountValue: 0,
+    });
+  }
+
+  const overdueLines = [
+    {
+      productId: pose.id,
+      designation: pose.name,
+      description: pose.description,
+      quantity: 4,
+      unit: pose.unit,
+      unitPriceCents: pose.salePriceHtCents,
+      discountKind: "NONE",
+      discountValue: 0,
+      taxRateBps: pose.taxRateBps,
+    },
+  ];
+  const overdueTotals = totals(overdueLines);
+  const overdue = await prisma.invoice.create({
+    data: {
+      companyId,
+      clientId: marc.id,
+      invoiceNumber: "F-2026-00001",
+      status: "OVERDUE",
+      issueDate: new Date("2026-06-01T12:00:00.000Z"),
+      dueDate: new Date("2026-07-01T12:00:00.000Z"),
+      notes: "Pose luminaires — relance en cours.",
+      totalHtCents: overdueTotals.totalHtCents,
+      totalTaxCents: overdueTotals.totalTaxCents,
+      totalTtcCents: overdueTotals.totalTtcCents,
+      linesHtCents: overdueTotals.linesHtCents,
+      amountDueCents: overdueTotals.totalTtcCents,
+      lines: {
+        create: overdueLines.map((line, index) => ({
+          ...line,
+          position: index,
+          lineHtCents: overdueTotals.lines[index].lineHtCents,
+          lineTaxCents: overdueTotals.lines[index].lineTaxCents,
+          lineTtcCents: overdueTotals.lines[index].lineTtcCents,
+        })),
+      },
+    },
+  });
+
+  await prisma.reminder.create({
+    data: {
+      companyId,
+      target: "INVOICE",
+      invoiceId: overdue.id,
+      level: 1,
+      notes: "1re relance — facture F-2026-00001",
+    },
+  });
+
+  const verreLines = [
+    {
+      productId: sus.id,
+      designation: sus.name,
+      description: sus.description,
+      quantity: 2,
+      unit: sus.unit,
+      unitPriceCents: sus.salePriceHtCents,
+      discountKind: "NONE",
+      discountValue: 0,
+      taxRateBps: sus.taxRateBps,
+    },
+  ];
+  const verreTotals = totals(verreLines, 4500);
+  const verreInvoice = await prisma.invoice.create({
+    data: {
+      companyId,
+      clientId: verre.id,
+      invoiceNumber: "F-2026-00002",
+      status: "PARTIAL",
+      issueDate: new Date("2026-07-15T12:00:00.000Z"),
+      dueDate: new Date("2026-08-14T12:00:00.000Z"),
+      travelFeeCents: 4500,
+      linesHtCents: verreTotals.linesHtCents,
+      totalHtCents: verreTotals.totalHtCents,
+      totalTaxCents: verreTotals.totalTaxCents,
+      totalTtcCents: verreTotals.totalTtcCents,
+      amountPaidCents: 20000,
+      amountDueCents: verreTotals.totalTtcCents - 20000,
+      lines: {
+        create: verreLines.map((line, index) => ({
+          ...line,
+          position: index,
+          lineHtCents: verreTotals.lines[index].lineHtCents,
+          lineTaxCents: verreTotals.lines[index].lineTaxCents,
+          lineTtcCents: verreTotals.lines[index].lineTtcCents,
+        })),
+      },
+    },
+  });
+  await prisma.payment.create({
+    data: {
+      companyId,
+      invoiceId: verreInvoice.id,
+      amountCents: 20000,
+      method: "TRANSFER",
+      paidAt: new Date("2026-07-20T12:00:00.000Z"),
+      reference: "VIR-2026-0720",
+    },
+  });
+
+  const sophieLines = [
+    {
+      productId: sus.id,
+      designation: sus.name,
+      description: sus.description,
+      quantity: 1,
+      unit: sus.unit,
+      unitPriceCents: sus.salePriceHtCents,
+      discountKind: "NONE",
+      discountValue: 0,
+      taxRateBps: sus.taxRateBps,
+    },
+    {
+      productId: pose.id,
+      designation: pose.name,
+      description: pose.description,
+      quantity: 2,
+      unit: pose.unit,
+      unitPriceCents: pose.salePriceHtCents,
+      discountKind: "NONE",
+      discountValue: 0,
+      taxRateBps: pose.taxRateBps,
+    },
+  ];
+  const sophieTotals = totals(sophieLines);
+  const sophieInvoice = await prisma.invoice.create({
+    data: {
+      companyId,
+      clientId: sophie.id,
+      quoteId: sophieQuote?.id ?? null,
+      invoiceNumber: "F-2026-00003",
+      status: "PAID",
+      issueDate: new Date("2026-07-12T12:00:00.000Z"),
+      dueDate: new Date("2026-08-11T12:00:00.000Z"),
+      depositCents: 20000,
+      linesHtCents: sophieTotals.linesHtCents,
+      totalHtCents: sophieTotals.totalHtCents,
+      totalTaxCents: sophieTotals.totalTaxCents,
+      totalTtcCents: sophieTotals.totalTtcCents,
+      amountPaidCents: sophieTotals.totalTtcCents,
+      amountDueCents: 0,
+      lines: {
+        create: sophieLines.map((line, index) => ({
+          ...line,
+          position: index,
+          lineHtCents: sophieTotals.lines[index].lineHtCents,
+          lineTaxCents: sophieTotals.lines[index].lineTaxCents,
+          lineTtcCents: sophieTotals.lines[index].lineTtcCents,
+        })),
+      },
+    },
+  });
+  await prisma.payment.create({
+    data: {
+      companyId,
+      invoiceId: sophieInvoice.id,
+      amountCents: sophieTotals.totalTtcCents,
+      method: "CARD",
+      paidAt: new Date("2026-07-18T12:00:00.000Z"),
+      reference: "CB-SOPHIE",
+    },
+  });
+  if (sophieQuote) {
+    await prisma.quote.update({ where: { id: sophieQuote.id }, data: { status: "CONVERTED" } });
+  }
+
+  const creditHt = 8900;
+  const creditTtc = Math.round((creditHt * 12000) / 10000);
+  await prisma.creditNote.create({
+    data: {
+      companyId,
+      clientId: verre.id,
+      invoiceId: verreInvoice.id,
+      creditNumber: "A-2026-00001",
+      status: "ISSUED",
+      kind: "PARTIAL",
+      issueDate: new Date("2026-08-01T12:00:00.000Z"),
+      reason: "Ampoule défectueuse — geste commercial",
+      taxRateBps: 2000,
+      totalHtCents: creditHt,
+      totalTaxCents: creditTtc - creditHt,
+      totalTtcCents: creditTtc,
+    },
+  });
+  await prisma.invoice.update({
+    where: { id: verreInvoice.id },
+    data: {
+      creditedCents: creditTtc,
+      amountDueCents: Math.max(0, verreTotals.totalTtcCents - 20000 - creditTtc),
+    },
+  });
+
+  async function refresh(clientId: string) {
+    const invoices = await prisma.invoice.findMany({
+      where: { clientId, deletedAt: null, NOT: { status: "DRAFT" } },
+    });
+    const balanceCents = invoices
+      .filter((invoice) => invoice.status !== "CANCELLED")
+      .reduce((sum, invoice) => sum + invoice.amountDueCents, 0);
+    await prisma.client.update({ where: { id: clientId }, data: { balanceCents } });
+  }
+  await refresh(marc.id);
+  await refresh(verre.id);
+  await refresh(sophie.id);
+
+  await prisma.companySettings.update({
+    where: { companyId },
+    data: { nextInvoiceSeq: 4, nextCreditSeq: 2 },
+  });
+
+  console.log("Seed facturation OK — 3 factures, 1 avoir, 1 relance");
+}
+
 async function main() {
   const existing = await prisma.company.findFirst();
   if (existing) {
     console.log("Entreprise déjà présente, seed clients ignoré.");
     await seedProducts(existing.id);
     await seedQuotes(existing.id);
+    await seedBilling(existing.id);
+    await ensureConvertibleQuote(existing.id);
     return;
   }
 
@@ -579,6 +919,8 @@ async function main() {
 
   await seedProducts(company.id);
   await seedQuotes(company.id);
+  await seedBilling(company.id);
+  await ensureConvertibleQuote(company.id);
   console.log("Seed OK — Atelier Nord Lumière + 8 clients");
 }
 
